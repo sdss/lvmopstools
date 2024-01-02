@@ -9,7 +9,7 @@
 from __future__ import annotations
 
 
-async def test_lvmopstools_import():
-    import lvmopstools
+async def test_version():
+    from lvmopstools import __version__
 
-    assert lvmopstools is not None
+    assert isinstance(__version__, str)
