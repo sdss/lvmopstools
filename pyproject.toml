@@ -82,9 +82,6 @@ asyncio_mode = "auto"
 branch = true
 include = ["src/lvmopstools/*"]
 omit = [
-    "*/__init__.py",
-    "src/lvmopstools/__main__.py",
-    "src/lvmopstools/types.py",
 ]
 
 [tool.coverage.report]
