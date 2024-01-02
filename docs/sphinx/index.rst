@@ -1,12 +1,12 @@
 
-lvmtools's documentation
+lvmopstools's documentation
 =======================
 
-This is the documentation for the SDSS Python product ``lvmtools``. The current version is |lvmtools_version|. You can install the package by doing
+This is the documentation for the SDSS Python product ``lvmopstools``. The current version is |lvmopstools_version|. You can install the package by doing
 
 .. code:: console
 
-  $ pip install lvmtools
+  $ pip install lvmopstools
 
 
 Contents
@@ -19,8 +19,8 @@ Contents
 Links
 -----
 
-* `Repository <https://github.com/sdss/lvmtools>`__
-* `Issue tracking <https://github.com/sdss/lvmtools/issues>`__
+* `Repository <https://github.com/sdss/lvmopstools>`__
+* `Issue tracking <https://github.com/sdss/lvmopstools/issues>`__
 
 
 Indices and tables

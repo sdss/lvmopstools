@@ -1,4 +1,4 @@
-(lvmtools-changelog)=
+(lvmopstools-changelog)=
 
 ```{include} ../../CHANGELOG.md
 ```

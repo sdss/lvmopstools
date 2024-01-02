@@ -3,13 +3,13 @@
 #
 # @Author: José Sánchez-Gallego (gallegoj@uw.edu)
 # @Date: 2024-01-02
-# @Filename: test_lvmtools.py
+# @Filename: test_lvmopstools.py
 # @License: BSD 3-clause (http://www.opensource.org/licenses/BSD-3-Clause)
 
 from __future__ import annotations
 
 
-async def test_lvmtools_import():
-    import lvmtools
+async def test_lvmopstools_import():
+    import lvmopstools
 
-    assert lvmtools is not None
+    assert lvmopstools is not None
