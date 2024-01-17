@@ -10,56 +10,77 @@ from __future__ import annotations
 
 import pytest
 
-from lvmopstools import retrier
+from lvmopstools import Retrier
 
 
-@pytest.mark.parametrize("fail", [False, True])
-async def test_retrier(fail: bool):
+def get_test_function(async_: bool = False, fail: bool = False, succeed_on: int = 2):
     global n_attempts
 
     n_attempts = 0
 
-    @retrier(max_attempts=3)
-    def test_function():
+    def _inner():
         global n_attempts
 
         if fail:
             raise ValueError()
 
         n_attempts += 1
-        if n_attempts == 2:
+        if n_attempts == succeed_on:
             return True
         else:
             raise ValueError()
 
+    def test_function():
+        return _inner()
+
+    async def test_function_async():
+        return _inner()
+
+    return test_function_async if async_ else test_function
+
+
+def _get_retrier(raise_: bool, exponential_backoff: bool):
+    if exponential_backoff:
+        base = 1.1
+    else:
+        base = 2
+
+    return Retrier(
+        raise_on_max_attempts=raise_,
+        use_exponential_backoff=exponential_backoff,
+        exponential_backoff_base=base,
+    )
+
+
+@pytest.mark.parametrize("fail", [False, True])
+@pytest.mark.parametrize("raise_", [False, True])
+@pytest.mark.parametrize("exponential_backoff", [False, True])
+def test_retrier(fail: bool, raise_: bool, exponential_backoff: bool):
+    retrier = _get_retrier(raise_, exponential_backoff)
+    test_function = retrier(get_test_function(async_=False, fail=fail))
+
     if fail:
-        with pytest.raises(ValueError):
-            test_function()
+        if raise_:
+            with pytest.raises(ValueError):
+                test_function()
+        else:
+            assert test_function() is None
     else:
         assert test_function() is True
 
 
 @pytest.mark.parametrize("fail", [False, True])
-async def test_retrier_async(fail: bool):
-    global n_attempts
-
-    n_attempts = 0
-
-    @retrier(max_attempts=3)
-    async def test_function():
-        global n_attempts
-
-        if fail:
-            raise ValueError()
-
-        n_attempts += 1
-        if n_attempts == 2:
-            return True
-        else:
-            raise ValueError()
+@pytest.mark.parametrize("raise_", [False, True])
+@pytest.mark.parametrize("exponential_backoff", [False, True])
+async def test_retrier_async(fail: bool, raise_: bool, exponential_backoff: bool):
+    retrier = _get_retrier(raise_, exponential_backoff)
+    test_function = retrier(get_test_function(async_=True, fail=fail))
 
     if fail:
-        with pytest.raises(ValueError):
-            await test_function()
+        if raise_:
+            with pytest.raises(ValueError):
+                await test_function()
+        else:
+            assert (await test_function()) is None
     else:
         assert (await test_function()) is True

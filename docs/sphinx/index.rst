@@ -1,6 +1,6 @@
 
 lvmopstools's documentation
-=======================
+===========================
 
 This is the documentation for the SDSS Python product ``lvmopstools``. The current version is |lvmopstools_version|. You can install the package by doing
 
@@ -14,6 +14,9 @@ Contents
 
 .. toctree::
   :maxdepth: 2
+
+  api
+  changelog
 
 
 Links

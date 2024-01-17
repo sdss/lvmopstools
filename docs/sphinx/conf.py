@@ -22,7 +22,6 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.intersphinx",
     "sphinx_click.ext",
-    "sphinx-jsonschema",
     "myst_parser",
     "sphinx_copybutton",
 ]
@@ -47,7 +46,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "lvmopstools"
-copyright = "{0}, {1}".format("2023-", "José Sánchez-Gallego")
+copyright = "{0}, {1}".format("2024-", "José Sánchez-Gallego")
 author = "José Sánchez-Gallego"
 
 # The version info for the project you're documenting, acts as replacement for
@@ -77,7 +76,7 @@ exclude_patterns = [
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.
-default_role = "obj"
+default_role = "any"
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
 # add_function_parentheses = True
@@ -114,6 +113,7 @@ autodoc_default_options = {"members": None, "show-inheritance": None}
 # autodoc_typehints = "description"
 
 simplify_optional_unions = True
+typehints_use_signature = True
 typehints_use_signature_return = True
 
 # napoleon_use_rtype = False
