@@ -30,10 +30,10 @@ lvmtools = 'lvmopstools.__main__:lvmopstools'
 [tool.poetry.dependencies]
 python = "^3.10,<3.13"
 sdsstools = "^1.3.1"
-pyds9 = "^1.8.1"
 sdss-clu = "^2.2.2"
 astropy = "^6.0.0"
 click = "^8.1.7"
+pyds9 = {version = "^1.8.1", optional = true}
 
 [tool.poetry.group.dev.dependencies]
 ipython = ">=8.0.0"
@@ -55,6 +55,9 @@ nox = ">=2021.6.12"
 sphinx-autobuild = ">=2021.3.14"
 sphinx-autodoc-typehints = "^1.23.2"
 ruff = ">=0.1.0"
+
+[tool.poetry.extras]
+ds9 = ["pyds9"]
 
 [tool.black]
 line-length = 88

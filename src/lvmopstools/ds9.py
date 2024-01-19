@@ -12,8 +12,13 @@ import asyncio
 import pathlib
 import re
 
-import pyds9
+from typing import TYPE_CHECKING
+
 from clu import AMQPClient, AMQPReply
+
+
+if TYPE_CHECKING:
+    from pyds9 import DS9
 
 
 CAMERAS = [
@@ -95,8 +100,16 @@ async def ds9_agcam_monitor(
         await asyncio.sleep(1)
 
 
-def ds9_clear_frames(ds9: pyds9.DS9 | None = None, ds9_target: str = "DS9:*"):
+def ds9_clear_frames(ds9: DS9 | None = None, ds9_target: str = "DS9:*"):
     """Clears all frames in DS9."""
+
+    try:
+        import pyds9
+    except ImportError:
+        raise ImportError(
+            "pyds9 is not installed. You can install it manually or run"
+            "pip install lvmopstools[ds9]"
+        )
 
     if ds9 is None:
         ds9 = pyds9.DS9(target=ds9_target)
@@ -108,7 +121,7 @@ def ds9_clear_frames(ds9: pyds9.DS9 | None = None, ds9_target: str = "DS9:*"):
 
 def ds9_display_frames(
     files: list[str | pathlib.Path] | dict[str, str | pathlib.Path | None],
-    ds9: pyds9.DS9 | None = None,
+    ds9: DS9 | None = None,
     order=CAMERAS,
     ds9_target: str = "DS9:*",
     show_all_frames=True,
@@ -119,6 +132,14 @@ def ds9_display_frames(
     show_tiles=True,
 ):
     """Displays a series of images in DS9."""
+
+    try:
+        import pyds9
+    except ImportError:
+        raise ImportError(
+            "pyds9 is not installed. You can install it manually or run"
+            "pip install lvmopstools[ds9]"
+        )
 
     if ds9 is None:
         ds9 = pyds9.DS9(target=ds9_target)
