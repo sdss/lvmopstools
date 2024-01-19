@@ -2,10 +2,14 @@
 API
 ===
 
-.. currentmodule:: lvmopstools
-
 Retrier
 -------
 
-.. autoclass:: Retrier
+.. autoclass:: lvmopstools.retrier.Retrier
+   :members:
+
+Socket
+------
+
+.. autoclass:: lvmopstools.socket.AsyncSocketHandler
    :members:

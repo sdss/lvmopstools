@@ -16,12 +16,50 @@ from typing import Any, Awaitable, Callable
 from lvmopstools.retrier import Retrier
 
 
+__all__ = ["AsyncSocketHandler"]
+
 RequestFuncType = Callable[[asyncio.StreamReader, asyncio.StreamWriter], Awaitable[Any]]
 
 
 @dataclass
 class AsyncSocketHandler:
-    """Handles a socket connection and disconnection."""
+    """Handles a socket connection and disconnection.
+
+    Handles secure connection and disconnection to a TCP server and executed a
+    callback. By default :obj:`.Retrier` is used to retry the connection if it
+    fails either during the connection phase or during callback execution.
+
+    There are two ways to use this class. The first one is to create an instance
+    and call it with a callback function which receives :obj:`~asyncio.StreamReader`
+    and :obj:`~asyncio.StreamWriter` arguments ::
+
+            async def callback(reader, writer):
+                ...
+
+            handler = AsyncSocketHandler(host, port)
+            await handler(callback)
+
+    Alternatively, you can subclass ``AsyncSocketHandler`` and override the
+    :obj:`request` method ::
+
+        class MyHandler(AsyncSocketHandler):
+            async def request(self, reader, writer):
+                ...
+
+    Parameters
+    ----------
+    host
+        The host that is running the server.
+    port
+        The port on which the server is listening.
+    timeout
+        The timeout for connection and callback execution.
+    retry
+        Whether to retry the connection/callback if they fails.
+    retrier_params
+        Parameters to pass to the :class:`.Retrier` instance.
+
+    """
 
     host: str
     port: int
@@ -70,6 +108,13 @@ class AsyncSocketHandler:
         reader: asyncio.StreamReader,
         writer: asyncio.StreamWriter,
     ):  # pragma: no cover
-        """Sends a request to the socket."""
+        """Sends a request to the socket.
+
+        If the handler is not called with a callback function, this method must be
+        overridden in a subclass. It receives the :obj:`~asyncio.StreamReader` and
+        :obj:`~asyncio.StreamWriter` client instances after a connection has been
+        established.
+
+        """
 
         return
