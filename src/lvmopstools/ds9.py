@@ -141,12 +141,13 @@ def ds9_display_frames(
         if cam in files_dict:
             ds9.set(f"frame {nframe}")
 
-            ds9.set("preserve pan yes")
-            ds9.set("preserve regions yes")
-            ds9.set("preserve scale yes")
-
             has_file = ds9.get("file") != ""
             zoom = ds9.get("zoom")
+
+            if has_file:
+                ds9.set("preserve pan yes")
+                ds9.set("preserve regions yes")
+                ds9.set("preserve scale yes")
 
             file_ = files_dict[cam]
             if file_ is None:
