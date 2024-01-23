@@ -82,7 +82,11 @@ def test_get_error_codes_not_valid():
 
 @pytest.mark.parametrize(
     "side_effect",
-    [ValueError("Test error"), CheckError("Test error", ErrorCodes.UNKNOWN)],
+    [
+        ValueError("Test error"),
+        CheckError("Test error", ErrorCodes.UNKNOWN),
+        CheckError("Test error", 9999),
+    ],
 )
 async def test_actor_check_fails(lvm_actor: LVMActor, mocker, side_effect: Exception):
     lvm_actor._check_internal = mocker.AsyncMock(side_effect=side_effect)
@@ -100,6 +104,8 @@ async def test_actor_check_fails(lvm_actor: LVMActor, mocker, side_effect: Excep
     assert replies[1]["state"]["code"] & ActorState.READY.value
     assert replies[2]["state"]["code"] & ActorState.TROUBLESHOOTING.value
     assert replies[3]["state"]["code"] & ActorState.READY.value
+
+    assert replies[1]["state"]["flags"] == ["RUNNING", "READY"]
 
 
 async def test_actor_restart(lvm_actor: LVMActor, mocker: MockerFixture):

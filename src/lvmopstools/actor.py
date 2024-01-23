@@ -97,6 +97,11 @@ class ActorState(enum.Flag):
     NOT_READY = TROUBLESHOOTING | TROUBLESHOOT_FAILED | RESTARTING
     SKIP_CHECK = CHECKING | TROUBLESHOOTING | RESTARTING
 
+    def get_state_names(self):
+        """Returns the state names that are set."""
+
+        return [state.name for state in self.__class__ if self & state]
+
 
 @dataclass
 class ErrorData:
@@ -140,7 +145,7 @@ async def actor_state(command: Command[LVMActor], *args, **kwargs):
 
     state = command.actor.state
     code = state.value
-    flags = state.name.split("|")
+    flags = state.get_state_names()
 
     if (model := command.actor.model) is not None:
         state_kw = model["state"]
@@ -280,7 +285,7 @@ class LVMActor(AMQPActor):
                 "d",
                 state={
                     "code": self.state.value,
-                    "flags": self.state.name.split("|"),
+                    "flags": self.state.get_state_names(),
                     "error": error_data,
                 },
                 internal=internal,
