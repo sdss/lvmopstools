@@ -79,7 +79,18 @@ def extend_enum(inherited_enum):
             joined[item.name] = item.value
         for item in added_enum:
             joined[item.name] = item.value
-        return enum.Enum(added_enum.__name__, joined)
+
+        new_enum_class = enum.Enum(added_enum.__name__, joined)
+
+        # Add methods from the inherited class.
+        for attr in inherited_enum.__dict__:
+            if attr.startswith("__"):
+                continue
+            if hasattr(new_enum_class, attr):
+                continue
+            setattr(new_enum_class, attr, getattr(inherited_enum, attr))
+
+        return new_enum_class
 
     return wrapper
 

@@ -37,6 +37,8 @@ def test_extend_enum():
     assert hasattr(ExtraErrorCodes, "SOME_FAILURE_MODE")
     assert hasattr(ExtraErrorCodes, "UNKNOWN")
 
+    assert hasattr(ExtraErrorCodes, "get_error_code")
+
 
 def test_verify_error_codes_fails():
     with pytest.raises(ValueError):
