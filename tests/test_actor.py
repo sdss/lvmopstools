@@ -80,11 +80,12 @@ async def test_actor_check_fails(lvm_actor: LVMActor, mocker):
     await asyncio.sleep(0.1)
 
     replies = lvm_actor.mock_replies  # type: ignore
-    assert len(replies) == 3
+    assert len(replies) == 4
 
-    assert replies[0]["state"]["code"] & ActorState.READY.value
-    assert replies[1]["state"]["code"] & ActorState.TROUBLESHOOTING.value
-    assert replies[2]["state"]["code"] & ActorState.READY.value
+    assert not (replies[0]["state"]["code"] & ActorState.READY.value)
+    assert replies[1]["state"]["code"] & ActorState.READY.value
+    assert replies[2]["state"]["code"] & ActorState.TROUBLESHOOTING.value
+    assert replies[3]["state"]["code"] & ActorState.READY.value
 
 
 async def test_actor_restart(lvm_actor: LVMActor, mocker: MockerFixture):

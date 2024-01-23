@@ -174,7 +174,7 @@ class LVMActor(AMQPActor):
         """Starts the actor."""
 
         await super().start()
-        self.update_state(ActorState.READY)
+        self.update_state(ActorState.RUNNING)
 
         self._check_task = asyncio.create_task(self._check_loop())
 
@@ -210,6 +210,8 @@ class LVMActor(AMQPActor):
                 await self._check_internal()
             except Exception as err:
                 await self.troubleshoot(exception=err, traceback_frame=1)
+            else:
+                self.update_state(ActorState.READY)
             finally:
                 await asyncio.sleep(self._check_interval)
 

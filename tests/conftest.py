@@ -36,7 +36,7 @@ async def lvm_actor(mocker: MockerFixture):
 
     await setup_test_actor(actor)  # type: ignore
 
-    actor.update_state(ActorState.READY)
+    actor.update_state(ActorState.RUNNING)
     actor._check_task = asyncio.create_task(actor._check_loop())
 
     actor._check_internal = mocker.AsyncMock(return_value=None)
