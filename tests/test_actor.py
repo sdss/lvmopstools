@@ -20,6 +20,7 @@ from sdsstools import cancel_task
 import lvmopstools.actor
 from lvmopstools.actor import (
     ActorState,
+    CheckError,
     ErrorCodes,
     ErrorData,
     LVMActor,
@@ -70,8 +71,21 @@ async def test_actor_state_no_model(lvm_actor: LVMActor):
     assert cmd.replies[-1].body["state"]["error"] is None
 
 
-async def test_actor_check_fails(lvm_actor: LVMActor, mocker):
-    lvm_actor._check_internal = mocker.AsyncMock(side_effect=ValueError("Test error"))
+def test_get_error_codes():
+    assert ErrorCodes.UNKNOWN == ErrorCodes.get_error_code(9999)
+
+
+def test_get_error_codes_not_valid():
+    with pytest.raises(ValueError):
+        ErrorCodes.get_error_code(999999)
+
+
+@pytest.mark.parametrize(
+    "side_effect",
+    [ValueError("Test error"), CheckError("Test error", ErrorCodes.UNKNOWN)],
+)
+async def test_actor_check_fails(lvm_actor: LVMActor, mocker, side_effect: Exception):
+    lvm_actor._check_internal = mocker.AsyncMock(side_effect=side_effect)
 
     # Restart the check loop
     await cancel_task(lvm_actor._check_task)

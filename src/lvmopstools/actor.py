@@ -29,6 +29,7 @@ from lvmopstools.utils import get_exception_data, stop_event_loop
 
 __all__ = [
     "LVMActor",
+    "CheckError",
     "ActorState",
     "ErrorCodes",
     "ErrorData",
@@ -122,6 +123,16 @@ class ErrorCodes(enum.Enum):
 
     UNKNOWN = ErrorData(9999, True, "Unknown error.")
 
+    @classmethod
+    def get_error_code(cls, error_code: int):
+        """Returns the :obj:`.ErrorCodes` that matches the ``error_code`` value."""
+
+        for error in cls:
+            if error.value.code == error_code:
+                return error
+
+        raise ValueError(f"Error code {error_code} not found.")
+
 
 @click.command(cls=CluCommand, name="actor-state")
 async def actor_state(command: Command[LVMActor], *args, **kwargs):
@@ -139,6 +150,24 @@ async def actor_state(command: Command[LVMActor], *args, **kwargs):
             return command.finish(state=state)
 
     return command.finish(state={"code": code, "flags": flags, "error": None})
+
+
+class CheckError(Exception):
+    """An exception raised when the :obj:`.LVMActor` check fails."""
+
+    def __init__(
+        self,
+        message: str = "",
+        error_code: ErrorCodes | int = ErrorCodes.UNKNOWN,
+    ):
+        if isinstance(error_code, int):
+            self.error_code = ErrorCodes.get_error_code(error_code)
+        else:
+            self.error_code = error_code
+
+        self.message = message
+
+        super().__init__(message)
 
 
 class LVMActor(AMQPActor):
@@ -208,6 +237,8 @@ class LVMActor(AMQPActor):
 
             try:
                 await self._check_internal()
+            except CheckError as err:
+                await self.troubleshoot(error_code=err.error_code, exception=err)
             except Exception as err:
                 await self.troubleshoot(exception=err, traceback_frame=1)
             else:
@@ -320,6 +351,8 @@ class LVMActor(AMQPActor):
         :obj:`.LVMActor`. It is called by :obj:`.check_loop` every ``check_interval``
         seconds. The method must perform any necessary checks and, if a problem
         is found, call :obj:`.troubleshoot` with the appropriate error code.
+        Alternatively if the check fails it can raise a :obj:`.CheckError` with
+        the appropriate error code.
 
         """
 
