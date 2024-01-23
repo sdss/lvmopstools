@@ -2,6 +2,12 @@
 API
 ===
 
+Actor
+-----
+
+.. automodule:: lvmopstools.actor
+   :members:
+
 Retrier
 -------
 
