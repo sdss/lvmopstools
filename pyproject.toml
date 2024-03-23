@@ -55,6 +55,7 @@ nox = ">=2021.6.12"
 sphinx-autobuild = ">=2021.3.14"
 sphinx-autodoc-typehints = "^1.23.2"
 ruff = ">=0.1.0"
+pandas-stubs = "^2.1.4.231227"
 
 [tool.poetry.extras]
 ds9 = ["pyds9"]
