@@ -9,7 +9,6 @@
 from __future__ import annotations
 
 import asyncio
-import enum
 import sys
 
 import pytest
@@ -24,28 +23,28 @@ from lvmopstools.actor import (
     ErrorCodes,
     ErrorData,
     LVMActor,
-    extend_enum,
-    verify_error_codes,
+    create_error_codes,
 )
 
 
-def test_extend_enum():
-    @extend_enum(ErrorCodes)
-    class ExtraErrorCodes(enum.Enum):
-        SOME_FAILURE_MODE = ErrorData(1, critical=False, description="Test error")
+def test_create_error_codes():
 
-    assert hasattr(ExtraErrorCodes, "SOME_FAILURE_MODE")
-    assert hasattr(ExtraErrorCodes, "UNKNOWN")
+    ErrorCodesTest = create_error_codes(
+        {
+            "CODE1": (1, True),
+            "CODE2": (2, False, "Non-critical error"),
+            "CODE3": ErrorData(3, True, "Critical error"),
+        }
+    )
 
-    assert hasattr(ExtraErrorCodes, "get_error_code")
+    assert "CODE1" in ErrorCodesTest.__members__
+    assert ErrorCodesTest.CODE1.value.code == 1
+    assert ErrorCodesTest.CODE1.value.critical
 
+    assert ErrorCodesTest.CODE2.value.code == 2
+    assert ErrorCodesTest.CODE2.value.critical is False
 
-def test_verify_error_codes_fails():
-    with pytest.raises(ValueError):
-
-        @verify_error_codes()
-        class NewErrorCodes(enum.Enum):
-            SOME_FAILURE_MODE = 1
+    assert ErrorCodesTest.CODE3.value.code == 3
 
 
 async def test_command_actor_state(lvm_actor: LVMActor):
