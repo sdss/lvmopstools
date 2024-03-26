@@ -1,10 +1,10 @@
 # Changelog
 
-## Next version
+## 0.2.0 - March 25, 2024
 
 ### 🚀 New
 
-* Added `LVMActor` class with actor state and troubleshooting framework.
+* Added `LVMActor` class with actor state, restart, and troubleshooting framework.
 
 
 ## 0.1.0 - January 19, 2024
