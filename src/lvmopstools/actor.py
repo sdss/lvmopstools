@@ -288,7 +288,7 @@ class LVMActor(AMQPActor):
         state: ActorState,
         error_data: dict[str, Any] | None = None,
         command: Command | None = None,
-        internal: bool = False,
+        internal: bool = True,
     ):
         """Updates the state and broadcasts the change."""
 
