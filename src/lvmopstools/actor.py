@@ -185,7 +185,7 @@ class LVMActor(AMQPActor):
     def __init__(
         self,
         *args,
-        check_interval: float = 5.0,
+        check_interval: float = 30.0,
         restart_after: float | None = 300.0,
         restart_mode="reload",
         **kwargs,
@@ -194,7 +194,7 @@ class LVMActor(AMQPActor):
 
         # Actor state.
         self.state = ActorState(0)
-        self._check_interval = check_interval
+        self.check_interval = check_interval
         self._check_task: asyncio.Task | None = None
         self._last_not_ready: float = -1
 
@@ -232,7 +232,7 @@ class LVMActor(AMQPActor):
 
         while True:
             if self.state & ActorState.SKIP_CHECK:
-                await asyncio.sleep(self._check_interval)
+                await asyncio.sleep(self.check_interval)
                 continue
 
             if not self.is_ready() and self._last_not_ready > 0:
@@ -255,7 +255,7 @@ class LVMActor(AMQPActor):
             else:
                 self.update_state(ActorState.READY)
             finally:
-                await asyncio.sleep(self._check_interval)
+                await asyncio.sleep(self.check_interval)
 
     def is_ready(self):
         """Returns :obj:`True` if the actor is ready."""
