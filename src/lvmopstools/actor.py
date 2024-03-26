@@ -168,6 +168,21 @@ async def actor_state(command: Command[LVMActor], *args, **kwargs):
     return command.finish(state={"code": code, "flags": flags, "error": None})
 
 
+@click.command(cls=CluCommand, name="actor-restart")
+@click.option(
+    "--mode",
+    "-m",
+    type=click.Choice(["exit", "reload"]),
+    default="exit",
+    help="How to restart the actor.",
+)
+async def actor_restart(command: Command[LVMActor], mode: str = "exit"):
+    """Restarts the actor."""
+
+    await command.actor.restart(mode=mode)
+    return command.finish()
+
+
 class CheckError(Exception):
     """An exception raised when the :obj:`.LVMActor` check fails."""
 
@@ -208,8 +223,9 @@ class LVMActor(AMQPActor):
         self.restart_after = restart_after
         self.restart_mode = restart_mode
 
-        # Actor state command.
+        # Additional commands.
         self.parser.add_command(actor_state)
+        self.parser.add_command(actor_restart)
 
         # Add keywords in schema for the actor state.
         assert self.model and self.model.schema, "Model schema not defined"

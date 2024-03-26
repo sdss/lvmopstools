@@ -48,7 +48,7 @@ def test_verify_error_codes_fails():
             SOME_FAILURE_MODE = 1
 
 
-async def test_actor_state(lvm_actor: LVMActor):
+async def test_command_actor_state(lvm_actor: LVMActor):
     assert isinstance(lvm_actor, LVMActor)
 
     cmd = await lvm_actor.invoke_mock_command("actor-state")
@@ -60,7 +60,7 @@ async def test_actor_state(lvm_actor: LVMActor):
     lvm_actor._troubleshoot_internal.assert_not_called()
 
 
-async def test_actor_state_no_model(lvm_actor: LVMActor):
+async def test_command_actor_state_no_model(lvm_actor: LVMActor):
     assert isinstance(lvm_actor, LVMActor)
 
     lvm_actor.model = None
@@ -71,6 +71,19 @@ async def test_actor_state_no_model(lvm_actor: LVMActor):
     assert cmd.status.did_succeed
     assert cmd.replies[-1].body["state"]["code"] is not None
     assert cmd.replies[-1].body["state"]["error"] is None
+
+
+async def test_command_actor_restart(lvm_actor: LVMActor, mocker: MockerFixture):
+    assert isinstance(lvm_actor, LVMActor)
+
+    lvm_actor.restart = mocker.AsyncMock()
+
+    cmd = await lvm_actor.invoke_mock_command("actor-restart")
+    await cmd
+
+    assert cmd.status.did_succeed
+
+    lvm_actor.restart.assert_called_once()
 
 
 def test_get_error_codes():
