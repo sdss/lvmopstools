@@ -268,6 +268,7 @@ class LVMActor(AMQPActor):
                     await self.restart()
 
             try:
+                self.state |= ActorState.CHECKING
                 await self._check_internal()
             except CheckError as err:
                 await self.troubleshoot(error_code=err.error_code, exception=err)
