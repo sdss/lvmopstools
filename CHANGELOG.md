@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### ⚙️ Engineering
+
+* Format code using `ruff`.
+
+
 ## 0.2.0 - March 25, 2024
 
 ### 🚀 New

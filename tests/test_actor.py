@@ -28,7 +28,6 @@ from lvmopstools.actor import (
 
 
 def test_create_error_codes():
-
     ErrorCodesTest = create_error_codes(
         {
             "CODE1": (1, True),
