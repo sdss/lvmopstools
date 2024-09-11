@@ -11,7 +11,8 @@ from __future__ import annotations
 import os
 import pathlib
 
-from sdsstools.metadata import get_package_version, read_yaml_file
+from sdsstools import read_yaml_file
+from sdsstools.metadata import get_package_version
 
 
 __version__ = get_package_version(path=__file__, package_name="lvmopstools")
