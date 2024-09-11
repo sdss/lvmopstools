@@ -1,0 +1,53 @@
+devices:
+  thermistors:
+    host: 10.8.38.180
+    port: 1025
+    mapping:
+      channel7: supply
+      channel8: r1
+      channel9: b1
+      channel6: z1
+      channel10: r3
+      channel11: b3
+      channel12: z3
+      channel13: r2
+      channel14: b2
+      channel15: z2
+
+  ion:
+    # - host: 10.8.38.155
+    #   port: 502
+    #   cameras:
+    #     z1:
+    #       signal_address: 0
+    #       onoff_address: 2020
+    #     b1:
+    #       signal_address: 2
+    #       onoff_address: 2021
+    #     r1:
+    #       signal_address: 4
+    #       onoff_address: 2022
+    - host: 10.8.38.156
+      port: 502
+      cameras:
+        z2:
+          signal_address: 0
+          onoff_address: 2020
+        b2:
+          signal_address: 2
+          onoff_address: 2021
+        r2:
+          signal_address: 4
+          onoff_address: 2022
+    # - host: 10.8.38.157
+    #   port: 502
+    #   cameras:
+    #     z3:
+    #       signal_address: 0
+    #       onoff_address: 2020
+    #     b3:
+    #       signal_address: 2
+    #       onoff_address: 2021
+    #     r3:
+    #       signal_address: 4
+    #       onoff_address: 2022

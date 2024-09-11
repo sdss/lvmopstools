@@ -8,10 +8,19 @@
 
 from __future__ import annotations
 
-from sdsstools.metadata import get_package_version
+import os
+import pathlib
+
+from sdsstools.metadata import get_package_version, read_yaml_file
 
 
 __version__ = get_package_version(path=__file__, package_name="lvmopstools")
+
+
+DEFAULT_CONFIG_FILE = pathlib.Path(__file__).parent / "config.yaml"
+CONFIG_FILE = os.environ.get("LVMOPSTOOLS_CONFIG_FILE", str(DEFAULT_CONFIG_FILE))
+
+config = read_yaml_file(CONFIG_FILE)
 
 
 from .retrier import *
