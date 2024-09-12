@@ -2,9 +2,15 @@
 
 ## Next version
 
+### 🚀 New
+
+* Added support for reading spectrograph status, ion pumps, and thermistors.
+* Added `CliClient` class.
+
 ### ⚙️ Engineering
 
 * Format code using `ruff`.
+* Migrate package management to `uv`.
 
 
 ## 0.2.0 - March 25, 2024
