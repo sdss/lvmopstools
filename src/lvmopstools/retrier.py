@@ -11,6 +11,7 @@ from __future__ import annotations
 import asyncio
 import time
 from dataclasses import dataclass
+from functools import wraps
 
 from typing import Any, Callable
 
@@ -89,6 +90,7 @@ class Retrier:
 
         is_coroutine = asyncio.iscoroutinefunction(func)
 
+        @wraps(func)
         def wrapper(*args, **kwargs):
             attempt = 0
             while True:
@@ -103,6 +105,7 @@ class Retrier:
                     else:
                         time.sleep(self.calculate_delay(attempt))
 
+        @wraps(func)
         async def async_wrapper(*args, **kwargs):
             attempt = 0
             while True:

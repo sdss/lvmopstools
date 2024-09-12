@@ -22,7 +22,7 @@ __all__ = ["read_thermistors"]
 
 @Retrier(max_attempts=3, delay=1)
 async def read_thermistors():
-    """Returns the termistor values."""
+    """Returns the thermistor values."""
 
     th_config = config["devices.thermistors"]
 

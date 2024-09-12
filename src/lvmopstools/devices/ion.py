@@ -8,13 +8,11 @@
 
 from __future__ import annotations
 
+import asyncio
 import warnings
-
-from typing import Literal
 
 from drift import Drift
 from drift.convert import data_to_float32
-from sdsstools import GatheringTaskGroup
 
 from lvmopstools import config
 from lvmopstools.retrier import Retrier
@@ -23,6 +21,7 @@ from lvmopstools.retrier import Retrier
 __all__ = ["read_ion_pumps", "toggle_ion_pump", "convert_pressure", "ALL"]
 
 
+#: Flag to toggle all ion pumps.
 ALL = "all"
 
 
@@ -68,7 +67,14 @@ async def _read_one_ion_controller(ion_config: dict):
 
 
 async def read_ion_pumps(cameras: list[str] | None = None):
-    """Reads the signal and on/off status from an ion pump."""
+    """Reads the signal and on/off status from an ion pump.
+
+    Parameters
+    ----------
+    cameras
+        A list of cameras to read. If `None`, reads all cameras.
+
+    """
 
     ion_config: list[dict] = config["devices.ion"]
 
@@ -96,13 +102,13 @@ async def read_ion_pumps(cameras: list[str] | None = None):
 
 
 @Retrier(max_attempts=3, delay=1)
-async def toggle_ion_pump(camera: str | Literal["all"], on: bool):
+async def toggle_ion_pump(camera: str, on: bool):
     """Turns the ion pump on or off.
 
     Parameters
     ----------
     camera
-        The camera for which to toggle the ion pump. Can also be `.ALL` to
+        The camera for which to toggle the ion pump. Can also be :obj:`.ALL` to
         toggle all ion pumps.
     on
         If `True`, turns the pump on. If `False`, turns the pump off. If `None`,

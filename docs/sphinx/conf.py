@@ -1,15 +1,10 @@
 import os
 
-from pkg_resources import parse_version
-
 from lvmopstools import __version__
 
 
 # Are we building in RTD?
 on_rtd = os.environ.get("READTHEDOCS") == "True"
-
-
-# matplotlib.use('agg')
 
 
 extensions = [
@@ -53,8 +48,6 @@ author = "José Sánchez-Gallego"
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 
-# The short X.Y version.
-version = parse_version(__version__).base_version
 # The full version, including alpha/beta/rc tags.
 release = __version__
 
@@ -113,7 +106,6 @@ autodoc_default_options = {"members": None, "show-inheritance": None}
 # autodoc_typehints = "description"
 
 simplify_optional_unions = True
-typehints_use_signature = True
 typehints_use_signature_return = True
 
 # napoleon_use_rtype = False
