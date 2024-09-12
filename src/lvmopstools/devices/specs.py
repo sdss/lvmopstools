@@ -8,9 +8,9 @@
 
 from __future__ import annotations
 
-import asyncio
-
 from typing import Literal, get_args
+
+from sdsstools.utils import GatheringTaskGroup
 
 from lvmopstools.clu import CluClient
 
@@ -47,14 +47,13 @@ async def get_spectrograph_temperatures(spec: Spectrographs | None = None):
     """Returns a dictionary of spectrograph temperatures."""
 
     if spec is None:
-        tasks: list[asyncio.Task] = []
-        for spec in get_args(Spectrographs):
-            tasks.append(asyncio.create_task(get_spectrograph_temperatures(spec)))
+        async with GatheringTaskGroup() as group:
+            for spec in get_args(Spectrographs):
+                group.create_task(get_spectrograph_temperatures(spec))
 
-        task_results = await asyncio.gather(*tasks)
         return {
             key: value
-            for task_result in task_results
+            for task_result in group.results()
             for key, value in task_result.items()
         }
 
@@ -66,7 +65,7 @@ async def get_spectrograph_temperatures(spec: Spectrographs | None = None):
         )
 
     if scp_command.status.did_fail:
-        raise ValueError("Failed retrieving status from SCP.")
+        raise ValueError(f"Failed retrieving status from SCP for spec {spec!r}.")
 
     status = scp_command.replies.get("status")
 

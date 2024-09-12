@@ -8,11 +8,11 @@
 
 from __future__ import annotations
 
-import asyncio
 import warnings
 
 from drift import Drift
 from drift.convert import data_to_float32
+from sdsstools import GatheringTaskGroup
 
 from lvmopstools import config
 from lvmopstools.retrier import Retrier
@@ -78,20 +78,18 @@ async def read_ion_pumps(cameras: list[str] | None = None):
 
     ion_config: list[dict] = config["devices.ion"]
 
-    tasks: list[asyncio.Task] = []
+    async with GatheringTaskGroup() as group:
+        for ion_controller in ion_config:
+            controller_cameras = ion_controller["cameras"]
+            if cameras is not None:
+                # Skip reading this controller if none of the cameras are in the list.
+                if len(set(cameras) & set(controller_cameras)) == 0:
+                    continue
 
-    for ion_controller in ion_config:
-        controller_cameras = ion_controller["cameras"]
-        if cameras is not None:
-            # Skip reading this controller if none of the cameras are in the list.
-            if len(set(cameras) & set(controller_cameras)) == 0:
-                continue
+            group.create_task(_read_one_ion_controller(ion_controller))
 
-        tasks.append(asyncio.create_task(_read_one_ion_controller(ion_controller)))
+    results = {camera: item[camera] for item in group.results() for camera in item}
 
-    task_results = await asyncio.gather(*tasks)
-
-    results = {camera: item[camera] for item in task_results for camera in item}
     if cameras is not None:
         results = {camera: results[camera] for camera in cameras if camera in results}
 

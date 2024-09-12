@@ -828,7 +828,7 @@ requires-dist = [
     { name = "pyds9", marker = "extra == 'ds9'", specifier = ">=1.8.1" },
     { name = "sdss-clu", specifier = ">=2.2.7" },
     { name = "sdss-drift", specifier = ">=1.2.0" },
-    { name = "sdsstools", specifier = ">=1.6.1" },
+    { name = "sdsstools", specifier = ">=1.8.2" },
 ]
 
 [package.metadata.requires-dev]
@@ -1809,7 +1809,7 @@ wheels = [
 
 [[package]]
 name = "sdsstools"
-version = "1.8.1"
+version = "1.8.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "daemonocle" },
@@ -1822,9 +1822,9 @@ dependencies = [
     { name = "rich" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/22/f9/b6d7216b9d88f32a4a644e7faedef79a1c09b9e6165b959cfb5adcd0e313/sdsstools-1.8.1.tar.gz", hash = "sha256:b2956830774f18e68ce537ba7d536a7b43b6407fc23357a72e08de28b67b22c9", size = 53824 }
+sdist = { url = "https://files.pythonhosted.org/packages/21/68/4064302385f46b38fc036df3c859b5a2aaa82eb32eaa4af69f0783c4a0a3/sdsstools-1.8.2.tar.gz", hash = "sha256:80c7bdf9a91ad1dd56a16ff5623cc70f5b5ccd415ed122f86d24d9fb9173ef94", size = 54050 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b8/7a/7756dfe24bcfae6bacc71c90ad80bed76adecac009c03933ab40c9ade643/sdsstools-1.8.1-py3-none-any.whl", hash = "sha256:8cad44a3da74ade52fdac2aba37cb504d99ad1700f05eae042dc389062a5a1b5", size = 55631 },
+    { url = "https://files.pythonhosted.org/packages/ea/c9/abeae708533b4005eb5c79e55c05ff2030fc79d279c55746ece9ec91764e/sdsstools-1.8.2-py3-none-any.whl", hash = "sha256:f1f3a0178309ceca3321ea4cc01baf39a7b7179559e0d9566b70f9761d103925", size = 55910 },
 ]
 
 [[package]]
