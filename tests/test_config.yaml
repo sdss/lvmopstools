@@ -1,0 +1,29 @@
+devices:
+  thermistors:
+    host: 10.8.38.180
+    port: 1025
+    channels:
+      supply: 7
+      r1: 8
+      b1: 9
+      z1: 6
+      r3: 10
+      b3: 11
+      z3: 12
+      r2: 13
+      b2: 14
+      z2: 15
+
+  ion:
+    - host: 127.0.0.1
+      port: 5020
+      cameras:
+        z2:
+          signal_address: 0
+          on_off_address: 20
+        b2:
+          signal_address: 2
+          on_off_address: 21
+        r2:
+          signal_address: 4
+          on_off_address: 22

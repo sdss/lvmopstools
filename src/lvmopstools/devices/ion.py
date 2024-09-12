@@ -8,11 +8,22 @@
 
 from __future__ import annotations
 
+import warnings
+
+from typing import Literal
+
 from drift import Drift
 from drift.convert import data_to_float32
 from sdsstools import GatheringTaskGroup
 
 from lvmopstools import config
+from lvmopstools.retrier import Retrier
+
+
+__all__ = ["read_ion_pumps", "toggle_ion_pump", "convert_pressure", "ALL"]
+
+
+ALL = "all"
 
 
 def convert_pressure(volts: float):
@@ -29,6 +40,7 @@ def convert_pressure(volts: float):
     return torr
 
 
+@Retrier(max_attempts=3, delay=1)
 async def _read_one_ion_controller(ion_config: dict):
     """Reads the signal and on/off status from an ion controller."""
 
@@ -39,10 +51,10 @@ async def _read_one_ion_controller(ion_config: dict):
     async with drift:
         for camera, camera_config in ion_config["cameras"].items():
             signal_address = camera_config["signal_address"]
-            # onoff_address = camera_config["onoff_address"]
+            # on_off_address = camera_config["on_off_address"]
 
             signal = await drift.client.read_input_registers(signal_address, 2)
-            # onoff = await drift.client.read_input_registers(onoff_address, 1)
+            # onoff = await drift.client.read_input_registers(on_off_address, 1)
 
             diff_volt = data_to_float32(tuple(signal.registers))
             pressure = convert_pressure(diff_volt)
@@ -55,27 +67,40 @@ async def _read_one_ion_controller(ion_config: dict):
     return results
 
 
-async def read_ion_pumps():
+async def read_ion_pumps(cameras: list[str] | None = None):
     """Reads the signal and on/off status from an ion pump."""
 
     ion_config: list[dict] = config["devices.ion"]
 
     async with GatheringTaskGroup() as group:
         for ion_controller in ion_config:
+            controller_cameras = ion_controller["cameras"]
+            if cameras is not None:
+                # Skip reading this controller if none of the cameras are in the list.
+                if len(set(cameras) & set(controller_cameras)) == 0:
+                    continue
+
             group.create_task(_read_one_ion_controller(ion_controller))
 
     results = {camera: item[camera] for item in group.results() for camera in item}
+    if cameras is not None:
+        results = {camera: results[camera] for camera in cameras if camera in results}
+
+    if cameras is not None and set(results.keys()) != set(cameras):
+        warnings.warn("Not all cameras were found in the configuration.")
 
     return results
 
 
-async def toggle_ion_pump(camera: str, on: bool):
+@Retrier(max_attempts=3, delay=1)
+async def toggle_ion_pump(camera: str | Literal["all"], on: bool):
     """Turns the ion pump on or off.
 
     Parameters
     ----------
     camera
-        The camera for which to toggle the ion pump.
+        The camera for which to toggle the ion pump. Can also be `.ALL` to
+        toggle all ion pumps.
     on
         If `True`, turns the pump on. If `False`, turns the pump off. If `None`,
         toggles the pump current status.
@@ -83,6 +108,12 @@ async def toggle_ion_pump(camera: str, on: bool):
     """
 
     ion_config: list[dict] = config["devices.ion"]
+
+    if camera == ALL:
+        cameras = [camera for ic in ion_config for camera in ic["cameras"]]
+        for camera in cameras:
+            await toggle_ion_pump(camera, on)
+        return
 
     host: str | None = None
     port: int | None = None
@@ -92,7 +123,7 @@ async def toggle_ion_pump(camera: str, on: bool):
         if camera in ic["cameras"]:
             host = ic["host"]
             port = ic.get("port", 502)
-            on_off_address = ic["cameras"][camera]["onoff_address"]
+            on_off_address = ic["cameras"][camera]["on_off_address"]
             break
 
     if host is None or port is None or on_off_address is None:
