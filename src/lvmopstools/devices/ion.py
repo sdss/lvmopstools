@@ -72,17 +72,20 @@ async def read_ion_pumps(cameras: list[str] | None = None):
 
     ion_config: list[dict] = config["devices.ion"]
 
-    async with GatheringTaskGroup() as group:
-        for ion_controller in ion_config:
-            controller_cameras = ion_controller["cameras"]
-            if cameras is not None:
-                # Skip reading this controller if none of the cameras are in the list.
-                if len(set(cameras) & set(controller_cameras)) == 0:
-                    continue
+    tasks: list[asyncio.Task] = []
 
-            group.create_task(_read_one_ion_controller(ion_controller))
+    for ion_controller in ion_config:
+        controller_cameras = ion_controller["cameras"]
+        if cameras is not None:
+            # Skip reading this controller if none of the cameras are in the list.
+            if len(set(cameras) & set(controller_cameras)) == 0:
+                continue
 
-    results = {camera: item[camera] for item in group.results() for camera in item}
+        tasks.append(asyncio.create_task(_read_one_ion_controller(ion_controller)))
+
+    task_results = await asyncio.gather(*tasks)
+
+    results = {camera: item[camera] for item in task_results for camera in item}
     if cameras is not None:
         results = {camera: results[camera] for camera in cameras if camera in results}
 
