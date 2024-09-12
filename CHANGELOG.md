@@ -1,6 +1,6 @@
 # Changelog
 
-## Next version
+## 0.3.0 - September 12, 2024
 
 ### 🚀 New
 
