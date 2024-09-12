@@ -84,8 +84,10 @@ branch = true
 include = ["src/lvmopstools/*"]
 omit = [
     "src/lvmopstools/__main__.py",
+    "src/lvmopstools/clu.py",
     "src/lvmopstools/ds9.py",
-    "src/lvmopstools/utils.py"
+    "src/lvmopstools/utils.py",
+    "src/lvmopstools/devices/specs.py"
 ]
 
 [tool.coverage.report]
