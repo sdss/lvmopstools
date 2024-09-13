@@ -42,3 +42,8 @@ Thermistors
 ^^^^^^^^^^^
 
 .. autofunction:: lvmopstools.devices.thermistors.read_thermistors
+
+NPS
+^^^
+
+.. autofunction:: lvmopstools.devices.nps.read_nps

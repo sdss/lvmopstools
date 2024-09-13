@@ -2,6 +2,10 @@
 
 ## Next version
 
+### 🚀 New
+
+* Added `lvmopstools.devices.nps.read_nps`.
+
 ### ✨ Improved
 
 * Several functions in `lvmopstools.devices.specs` now accept `ignore_errors` which replaces the values of unreachable devices with `None`.
