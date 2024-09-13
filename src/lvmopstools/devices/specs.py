@@ -24,8 +24,8 @@ __all__ = [
     "spectrograph_temperatures",
     "spectrograph_pressures",
     "spectrograph_mechanics",
-    "exposure_etr",
     "spectrogaph_status",
+    "exposure_etr",
 ]
 
 
@@ -36,7 +36,7 @@ SpecStatus = Literal["idle", "exposing", "reading", "error", "unknown"]
 SpecToStatus = dict[Spectrographs, SpecStatus]
 
 
-def spectrograph_temperature_label(camera: str, sensor: str = "ccd"):
+def spectrograph_temperature_label(camera: str, sensor: str = "ccd") -> str:
     """Returns the archon label associated with a temperature sensor."""
 
     if sensor == "ccd":
@@ -55,11 +55,13 @@ def spectrograph_temperature_label(camera: str, sensor: str = "ccd"):
         elif camera == "z":
             return "mod12/tempb"
 
+    raise ValueError(f"Invalid camera {camera!r} or sensor {sensor!r}.")
+
 
 async def spectrograph_temperatures(
     spec: Spectrographs | None = None,
     ignore_errors: bool = True,
-):
+) -> dict[str, float | None]:
     """Returns a dictionary of spectrograph temperatures.
 
     Parameters
@@ -141,7 +143,7 @@ async def spectrograph_temperatures(
 async def spectrograph_pressures(
     spec: Spectrographs | None = None,
     ignore_errors: bool = True,
-):
+) -> dict[str, float | None]:
     """Returns a dictionary of spectrograph pressures.
 
     Parameters
@@ -212,7 +214,7 @@ async def spectrograph_pressures(
 async def spectrograph_mechanics(
     spec: Spectrographs | None = None,
     ignore_errors: bool = True,
-):
+) -> dict[str, str | None]:
     """Returns a dictionary of spectrograph shutter and hartmann door status.
 
     Parameters

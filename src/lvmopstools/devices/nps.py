@@ -29,7 +29,7 @@ class NPSStatus(TypedDict):
 
 
 @Retrier(max_attempts=3, delay=1)
-async def read_nps():
+async def read_nps() -> dict[str, NPSStatus]:
     """Returns the status of all NPS."""
 
     actors = ["lvmnps.sp1", "lvmnps.sp2", "lvmnps.sp3", "lvmnps.calib"]

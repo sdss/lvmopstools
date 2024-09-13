@@ -75,7 +75,7 @@ class IonPumpDict(TypedDict):
     on: bool | None
 
 
-async def read_ion_pumps(cameras: list[str] | None = None):
+async def read_ion_pumps(cameras: list[str] | None = None) -> dict[str, IonPumpDict]:
     """Reads the signal and on/off status from an ion pump.
 
     Parameters
@@ -87,7 +87,7 @@ async def read_ion_pumps(cameras: list[str] | None = None):
 
     ion_config: list[dict] = config["devices.ion"]
 
-    results: dict[str, dict] = {}
+    results: dict[str, IonPumpDict] = {}
     tasks: list[asyncio.Task] = []
 
     for ion_controller in ion_config:

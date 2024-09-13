@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### ⚙️ Engineering
+
+* Improved typing.
+
+
 ## 0.3.3 - September 12, 2024
 
 ### 🚀 New
