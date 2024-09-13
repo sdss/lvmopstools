@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### 🚀 New
+
+* Moved additional spectrograph functions to `lvmopstools.devices.specs`.
+
+
 ## 0.3.0 - September 12, 2024
 
 ### 🚀 New

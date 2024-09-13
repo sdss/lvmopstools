@@ -23,6 +23,12 @@ Socket
 Devices
 -------
 
+Spectrographs
+^^^^^^^^^^^^^
+
+.. automodule:: lvmopstools.devices.spectrograph
+   :members:
+
 Ion Pumps
 ^^^^^^^^^
 
