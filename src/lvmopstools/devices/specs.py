@@ -24,7 +24,7 @@ __all__ = [
     "spectrograph_temperatures",
     "spectrograph_pressures",
     "spectrograph_mechanics",
-    "spectrogaph_status",
+    "spectrograph_status",
     "exposure_etr",
 ]
 
@@ -323,7 +323,7 @@ class SpectrographStatusResponse(TypedDict):
     etr: tuple[float, float] | tuple[None, None]
 
 
-async def spectrogaph_status() -> SpectrographStatusResponse:
+async def spectrograph_status() -> SpectrographStatusResponse:
     """Returns the status of the spectrographs."""
 
     spec_names = get_args(Spectrographs)

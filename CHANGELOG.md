@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### 🔧 Fixed
+
+* Fixed typo in `spectrograph_status` function name.
+
+
 ## 0.3.4 - September 12, 2024
 
 ### ⚙️ Engineering
