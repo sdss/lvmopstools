@@ -28,6 +28,7 @@ jobs:
         with:
           title: lvmopstools $version
           changelog: CHANGELOG.md
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install uv
         uses: astral-sh/setup-uv@v2
