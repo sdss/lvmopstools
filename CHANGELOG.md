@@ -7,6 +7,7 @@
 * Several functions in `lvmopstools.devices.specs` now accept `ignore_errors` which replaces the values of unreachable devices with `None`.
 * By default, return all values for all spectrographs in `spectrograph_pressures` and `spectrograph_mechanics`.
 * Return `None` if ion pump fails to read.
+* Allow to pass `internal` to `send_clu_command`.
 
 
 ## 0.3.2 - September 12, 2024

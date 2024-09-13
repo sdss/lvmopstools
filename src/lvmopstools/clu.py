@@ -128,15 +128,16 @@ class CluClient:
         cls.__initialised = False
 
 
-@overload
-async def send_clu_command(command_string: str) -> list[dict[str, Any]]: ...
+# @overload
+# async def send_clu_command(command_string: str) -> list[dict[str, Any]]: ...
 
 
 @overload
 async def send_clu_command(
     command_string: str,
     *,
-    raw: Literal[False],
+    raw: Literal[False] = False,
+    internal: bool = False,
 ) -> list[dict[str, Any]]: ...
 
 
@@ -144,22 +145,16 @@ async def send_clu_command(
 async def send_clu_command(
     command_string: str,
     *,
-    raw: Literal[True],
+    raw: Literal[True] = True,
+    internal: bool = False,
 ) -> Command: ...
-
-
-@overload
-async def send_clu_command(
-    command_string: str,
-    *,
-    raw: bool,
-) -> list[dict[str, Any]] | Command: ...
 
 
 async def send_clu_command(
     command_string: str,
     *,
     raw=False,
+    internal: bool = False,
 ) -> list[dict[str, Any]] | Command:
     """Sends a command to the actor system and returns a list of replies.
 
@@ -188,7 +183,7 @@ async def send_clu_command(
     consumer, *rest = command_string.split(" ")
 
     async with CluClient() as client:
-        cmd = await client.send_command(consumer, " ".join(rest))
+        cmd = await client.send_command(consumer, " ".join(rest), internal=internal)
 
     if cmd.status.did_succeed:
         if raw:
