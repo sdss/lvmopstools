@@ -5,6 +5,7 @@
 ### ✨ Improved
 
 * Several functions in `lvmopstools.devices.specs` now accept `ignore_errors` which replaces the values of unreachable devices with `None`.
+* By default, return all values for all spectrographs in `spectrograph_pressures` and `spectrograph_mechanics`.
 
 
 ## 0.3.2 - September 12, 2024

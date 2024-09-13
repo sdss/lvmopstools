@@ -8,8 +8,6 @@
 
 from __future__ import annotations
 
-import math
-
 from typing import TYPE_CHECKING, Literal, TypedDict, cast, get_args
 
 from sdsstools.utils import GatheringTaskGroup
@@ -98,6 +96,9 @@ async def spectrograph_temperatures(
             for key, value in task_result.items()
         }
 
+    if spec not in get_args(Spectrographs):
+        raise ValueError(f"Invalid spectrograph {spec!r}.")
+
     async with CluClient() as client:
         scp_command = await client.send_command(
             f"lvmscp.{spec}",
@@ -137,19 +138,42 @@ async def spectrograph_temperatures(
     return response
 
 
-async def spectrograph_pressures(spec: Spectrographs, ignore_errors: bool = True):
+async def spectrograph_pressures(
+    spec: Spectrographs | None = None,
+    ignore_errors: bool = True,
+):
     """Returns a dictionary of spectrograph pressures.
 
     Parameters
     ----------
     spec
-        The spectrograph to retrieve the pressures for.
+        The spectrograph to retrieve the pressures for. If `None`, retrieves
+        the pressures for all spectrographs.
     ignore_errors
         If `True`, ignores errors when retrieving the pressures and replaces the
         missing values with `None`. If `False`, raises an error if any of the
         pressures cannot be retrieved.
 
     """
+
+    if spec is None:
+        async with GatheringTaskGroup() as group:
+            for spec in get_args(Spectrographs):
+                group.create_task(
+                    spectrograph_pressures(
+                        spec,
+                        ignore_errors=ignore_errors,
+                    )
+                )
+
+        return {
+            key: value
+            for task_result in group.results()
+            for key, value in task_result.items()
+        }
+
+    if spec not in get_args(Spectrographs):
+        raise ValueError(f"Invalid spectrograph {spec!r}.")
 
     async with CluClient() as client:
         ieb_command = await client.send_command(
@@ -161,7 +185,6 @@ async def spectrograph_pressures(spec: Spectrographs, ignore_errors: bool = True
     try:
         if ieb_command.status.did_fail:
             raise ValueError("Failed retrieving status from IEB.")
-
         pressures = ieb_command.replies.get("transducer")
     except Exception:
         if not ignore_errors:
@@ -186,13 +209,17 @@ async def spectrograph_pressures(spec: Spectrographs, ignore_errors: bool = True
     return response
 
 
-async def spectrograph_mechanics(spec: Spectrographs, ignore_errors: bool = True):
+async def spectrograph_mechanics(
+    spec: Spectrographs | None = None,
+    ignore_errors: bool = True,
+):
     """Returns a dictionary of spectrograph shutter and hartmann door status.
 
     Parameters
     ----------
     spec
-        The spectrograph to retrieve the mechanics status for.
+        The spectrograph to retrieve the mechanics status for. If `None`, retrieves
+        the status for all spectrographs.
     ignore_errors
         If `True`, ignores errors when retrieving the status and replaces the
         missing values with `None`. If `False`, raises an error if any of the
@@ -208,6 +235,25 @@ async def spectrograph_mechanics(spec: Spectrographs, ignore_errors: bool = True
                 raise ValueError(f"Cannot find key {key!r} in IEB command replies.")
             else:
                 return None
+
+    if spec is None:
+        async with GatheringTaskGroup() as group:
+            for spec in get_args(Spectrographs):
+                group.create_task(
+                    spectrograph_mechanics(
+                        spec,
+                        ignore_errors=ignore_errors,
+                    )
+                )
+
+        return {
+            key: value
+            for task_result in group.results()
+            for key, value in task_result.items()
+        }
+
+    if spec not in get_args(Spectrographs):
+        raise ValueError(f"Invalid spectrograph {spec!r}.")
 
     response: dict[str, str | None] = {}
 
