@@ -9,6 +9,10 @@
 * Return `None` if ion pump fails to read.
 * Allow to pass `internal` to `send_clu_command`.
 
+### 🐛 Fixed
+
+* `Retrier` backoff delay is now calculated as `delay * exponential_backoff_base ** (attempt - 1)`.
+
 
 ## 0.3.2 - September 12, 2024
 

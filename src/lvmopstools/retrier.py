@@ -54,9 +54,10 @@ class Retrier:
         Otherwise the wrapped function will return :obj:`None` after the last attempt.
     use_exponential_backoff
         Whether to use exponential backoff for the delay between attempts. If
-        :obj:`True`, the delay will be ``delay + exponential_backoff_base ** attempt +
-        random_ms`` where ``random_ms`` is a random number between 0 and 100 ms used to
-        avoid synchronisation issues.
+        :obj:`True`, the delay will be
+        ``delay * exponential_backoff_base ** (attempt - 1) + random_ms`` where
+        ``random_ms`` is a random number between 0 and 100 ms used to avoid
+        synchronisation issues.
     exponential_backoff_base
         The base for the exponential backoff.
     max_delay
@@ -65,10 +66,10 @@ class Retrier:
     """
 
     max_attempts: int = 3
-    delay: float = 0.01
+    delay: float = 1
     raise_on_max_attempts: bool = True
     use_exponential_backoff: bool = True
-    exponential_backoff_base: float = 2.0
+    exponential_backoff_base: float = 2
     max_delay: float = 32.0
 
     def calculate_delay(self, attempt: int) -> float:
@@ -79,7 +80,7 @@ class Retrier:
 
         if self.use_exponential_backoff:
             return min(
-                self.delay + self.exponential_backoff_base**attempt + random_ms,
+                self.delay * self.exponential_backoff_base ** (attempt - 1) + random_ms,
                 self.max_delay,
             )
         else:
