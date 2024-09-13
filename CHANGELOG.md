@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.2 - September 12, 2024
+
+### ⚙️ Engineering
+
+* Test `taiki-e/create-gh-release-action` workflow to release a new version.
+
+
 ## 0.3.1 - September 12, 2024
 
 ### 🚀 New
