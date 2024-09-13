@@ -87,7 +87,8 @@ omit = [
     "src/lvmopstools/clu.py",
     "src/lvmopstools/ds9.py",
     "src/lvmopstools/utils.py",
-    "src/lvmopstools/devices/specs.py"
+    "src/lvmopstools/devices/specs.py",
+    "src/lvmopstools/devices/nps.py"
 ]
 
 [tool.coverage.report]
