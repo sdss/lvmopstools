@@ -11,7 +11,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
     "sphinx.ext.autosummary",
-    "sphinx_autodoc_typehints",
+    # "sphinx_autodoc_typehints",
     "sphinx.ext.todo",
     "sphinx.ext.viewcode",
     "sphinx.ext.mathjax",
@@ -103,10 +103,12 @@ intersphinx_mapping = {
 autodoc_mock_imports = ["_tkinter"]
 autodoc_member_order = "groupwise"
 autodoc_default_options = {"members": None, "show-inheritance": None}
-# autodoc_typehints = "description"
+# autodoc_typehints = "none"
 
-simplify_optional_unions = True
-typehints_use_signature_return = True
+# typehints_use_signature = True
+# typehints_use_signature_return = True
+# always_use_bars_union = True
+# simplify_optional_unions = True
 
 # napoleon_use_rtype = False
 # napoleon_use_ivar = True

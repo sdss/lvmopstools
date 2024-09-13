@@ -26,7 +26,7 @@ Devices
 Spectrographs
 ^^^^^^^^^^^^^
 
-.. automodule:: lvmopstools.devices.spectrograph
+.. automodule:: lvmopstools.devices.specs
    :members:
 
 Ion Pumps
