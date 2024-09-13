@@ -1,6 +1,6 @@
 # Changelog
 
-## Next version
+## 0.3.4 - September 12, 2024
 
 ### ⚙️ Engineering
 
