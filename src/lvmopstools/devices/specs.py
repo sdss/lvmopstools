@@ -8,11 +8,17 @@
 
 from __future__ import annotations
 
-from typing import Any, Literal, get_args
+import math
+
+from typing import TYPE_CHECKING, Literal, TypedDict, cast, get_args
 
 from sdsstools.utils import GatheringTaskGroup
 
 from lvmopstools.clu import CluClient
+
+
+if TYPE_CHECKING:
+    from clu.command import Command
 
 
 __all__ = [
@@ -52,13 +58,39 @@ def spectrograph_temperature_label(camera: str, sensor: str = "ccd"):
             return "mod12/tempb"
 
 
-async def spectrograph_temperatures(spec: Spectrographs | None = None):
-    """Returns a dictionary of spectrograph temperatures."""
+async def spectrograph_temperatures(
+    spec: Spectrographs | None = None,
+    ignore_errors: bool = True,
+):
+    """Returns a dictionary of spectrograph temperatures.
+
+    Parameters
+    ----------
+    spec
+        The spectrograph to retrieve the temperatures for. If `None`, retrieves
+        the temperatures for all spectrographs.
+    ignore_errors
+        If `True`, ignores errors when retrieving the temperatures and replaces the
+        missing values with ``NaN``. If `False`, raises an error if any of the
+        temperatures cannot be retrieved.
+
+    Returns
+    -------
+    dict
+        A dictionary with the temperatures for each camera and sensor, e.g.,
+        ``{'r1_ln2': -184.1, 'r1_ccd': -120.3, ...}``.
+
+    """
 
     if spec is None:
         async with GatheringTaskGroup() as group:
             for spec in get_args(Spectrographs):
-                group.create_task(spectrograph_temperatures(spec))
+                group.create_task(
+                    spectrograph_temperatures(
+                        spec,
+                        ignore_errors=ignore_errors,
+                    )
+                )
 
         return {
             key: value
@@ -73,10 +105,16 @@ async def spectrograph_temperatures(spec: Spectrographs | None = None):
             internal=True,
         )
 
-    if scp_command.status.did_fail:
-        raise ValueError(f"Failed retrieving status from SCP for spec {spec!r}.")
+    try:
+        if scp_command.status.did_fail:
+            raise ValueError(f"Failed retrieving status from SCP for spec {spec!r}.")
 
-    status = scp_command.replies.get("status")
+        status = scp_command.replies.get("status")
+    except Exception:
+        if not ignore_errors:
+            raise
+
+        status = {}
 
     response: dict[str, float] = {}
 
@@ -87,14 +125,31 @@ async def spectrograph_temperatures(spec: Spectrographs | None = None):
         for sensor in sensors:
             label = spectrograph_temperature_label(camera, sensor)
             if label not in status:
-                raise ValueError(f"Cannot find status label {label!r}.")
-            response[f"{camera}{spec[-1]}_{sensor}"] = status[label]
+                if not ignore_errors:
+                    raise ValueError(f"Cannot find status label {label!r}.")
+                else:
+                    value = math.nan
+            else:
+                value = status[label]
+
+            response[f"{camera}{spec[-1]}_{sensor}"] = value
 
     return response
 
 
-async def spectrograph_pressures(spec: Spectrographs):
-    """Returns a dictionary of spectrograph pressures."""
+async def spectrograph_pressures(spec: Spectrographs, ignore_errors: bool = True):
+    """Returns a dictionary of spectrograph pressures.
+
+    Parameters
+    ----------
+    spec
+        The spectrograph to retrieve the pressures for.
+    ignore_errors
+        If `True`, ignores errors when retrieving the pressures and replaces the
+        missing values with ``NaN``. If `False`, raises an error if any of the
+        pressures cannot be retrieved.
+
+    """
 
     async with CluClient() as client:
         ieb_command = await client.send_command(
@@ -103,21 +158,52 @@ async def spectrograph_pressures(spec: Spectrographs):
             internal=True,
         )
 
-    if ieb_command.status.did_fail:
-        raise ValueError("Failed retrieving status from IEB.")
+    try:
+        if ieb_command.status.did_fail:
+            raise ValueError("Failed retrieving status from IEB.")
 
-    pressures = ieb_command.replies.get("transducer")
+        pressures = ieb_command.replies.get("transducer")
+    except Exception:
+        if not ignore_errors:
+            raise
+
+        pressures = {}
 
     response: dict[str, float] = {}
     for key in pressures:
         if "pressure" in key:
             response[key] = pressures[key]
+        else:
+            if not ignore_errors:
+                raise ValueError(f"Cannot find pressure in key {key!r}.")
+            else:
+                response[key] = math.nan
 
     return response
 
 
-async def spectrograph_mechanics(spec: Spectrographs):
-    """Returns a dictionary of spectrograph shutter and hartmann door status."""
+async def spectrograph_mechanics(spec: Spectrographs, ignore_errors: bool = True):
+    """Returns a dictionary of spectrograph shutter and hartmann door status.
+
+    Parameters
+    ----------
+    spec
+        The spectrograph to retrieve the mechanics status for.
+    ignore_errors
+        If `True`, ignores errors when retrieving the status and replaces the
+        missing values with ``NA``. If `False`, raises an error if any of the
+        status cannot be retrieved
+
+    """
+
+    def get_reply(cmd: Command, key: str):
+        try:
+            return "open" if cmd.replies.get(key)["open"] else "closed"
+        except Exception:
+            if not ignore_errors:
+                raise ValueError(f"Cannot find key {key!r} in IEB command replies.")
+            else:
+                return "NA"
 
     response: dict[str, str] = {}
 
@@ -130,16 +216,16 @@ async def spectrograph_mechanics(spec: Spectrographs):
             )
 
             if ieb_cmd.status.did_fail:
-                raise ValueError(f"Failed retrieving {device } status from IEB.")
+                if not ignore_errors:
+                    raise ValueError(f"Failed retrieving {device } status from IEB.")
 
             if device == "shutter":
                 key = f"{spec}_shutter"
-                response[key] = "open" if ieb_cmd.replies.get(key)["open"] else "closed"
+                response[key] = get_reply(ieb_cmd, key)
             else:
                 for door in ["left", "right"]:
                     key = f"{spec}_hartmann_{door}"
-                    reply = ieb_cmd.replies.get(key)
-                    response[key] = "open" if reply["open"] else "closed"
+                    response[key] = get_reply(ieb_cmd, key)
 
     return response
 
@@ -177,8 +263,16 @@ async def exposure_etr() -> tuple[float | None, float | None]:
     return max(etrs), max(total_times)
 
 
-async def spectrogaph_status() -> dict[str, Any]:
-    """Returns the status of the spectrograph (integrating, reading, etc.)"""
+class SpectrographStatusResponse(TypedDict):
+    """Spectrograph status response."""
+
+    status: SpecToStatus
+    last_exposure_no: int
+    etr: tuple[float, float] | tuple[None, None]
+
+
+async def spectrogaph_status() -> SpectrographStatusResponse:
+    """Returns the status of the spectrographs."""
 
     spec_names = get_args(Spectrographs)
 
@@ -194,13 +288,13 @@ async def spectrogaph_status() -> dict[str, Any]:
                 )
             group.create_task(exposure_etr())
 
-    result: SpecToStatus = {}
+    status_dict: SpecToStatus = {}
     last_exposure_no: int = -1
-    etr: tuple[float | None, float | None] = (None, None)
+    etr: tuple[float, float] | tuple[None, None] = (None, None)
 
     for itask, task in enumerate(group.results()):
         if itask == len(spec_names):
-            etr = task
+            etr = cast(tuple[float, float] | tuple[None, None], task)
             continue
 
         if task.status.did_fail:
@@ -211,22 +305,28 @@ async def spectrogaph_status() -> dict[str, Any]:
         status_names: str = status["status_names"]
 
         if "ERROR" in status_names:
-            result[controller] = "error"
+            status_dict[controller] = "error"
         elif "IDLE" in status_names:
-            result[controller] = "idle"
+            status_dict[controller] = "idle"
         elif "EXPOSING" in status_names:
-            result[controller] = "exposing"
+            status_dict[controller] = "exposing"
         elif "READING" in status_names:
-            result[controller] = "reading"
+            status_dict[controller] = "reading"
         else:
-            result[controller] = "unknown"
+            status_dict[controller] = "unknown"
 
         last_exposure_no_key = status.get("last_exposure_no", -1)
         if last_exposure_no_key > last_exposure_no:
-            last_exposure_no = last_exposure_no_key
+            last_exposure_no = cast(int, last_exposure_no_key)
 
     for spec in spec_names:
-        if spec not in result:
-            result[spec] = "unknown"
+        if spec not in status_dict:
+            status_dict[spec] = "unknown"
 
-    return {"status": result, "last_exposure_no": last_exposure_no, "etr": etr}
+    response: SpectrographStatusResponse = {
+        "status": status_dict,
+        "last_exposure_no": last_exposure_no,
+        "etr": etr,
+    }
+
+    return response

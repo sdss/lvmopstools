@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### ✨ Improved
+
+* Several functions in `lvmopstools.devices.specs` now accept `ignore_errors` which replaces the values of unreachable devices with `NaN` or `NA`.
+
+
 ## 0.3.2 - September 12, 2024
 
 ### ⚙️ Engineering
