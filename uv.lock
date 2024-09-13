@@ -781,7 +781,7 @@ wheels = [
 
 [[package]]
 name = "lvmopstools"
-version = "0.3.5a0"
+version = "0.3.5"
 source = { editable = "." }
 dependencies = [
     { name = "astropy" },
