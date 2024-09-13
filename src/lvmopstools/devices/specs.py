@@ -71,7 +71,7 @@ async def spectrograph_temperatures(
         the temperatures for all spectrographs.
     ignore_errors
         If `True`, ignores errors when retrieving the temperatures and replaces the
-        missing values with ``NaN``. If `False`, raises an error if any of the
+        missing values with `None`. If `False`, raises an error if any of the
         temperatures cannot be retrieved.
 
     Returns
@@ -116,7 +116,7 @@ async def spectrograph_temperatures(
 
         status = {}
 
-    response: dict[str, float] = {}
+    response: dict[str, float | None] = {}
 
     cameras: list[Cameras] = ["r", "b", "z"]
     sensors: list[Sensors] = ["ccd", "ln2"]
@@ -128,7 +128,7 @@ async def spectrograph_temperatures(
                 if not ignore_errors:
                     raise ValueError(f"Cannot find status label {label!r}.")
                 else:
-                    value = math.nan
+                    value = None
             else:
                 value = status[label]
 
@@ -146,7 +146,7 @@ async def spectrograph_pressures(spec: Spectrographs, ignore_errors: bool = True
         The spectrograph to retrieve the pressures for.
     ignore_errors
         If `True`, ignores errors when retrieving the pressures and replaces the
-        missing values with ``NaN``. If `False`, raises an error if any of the
+        missing values with `None`. If `False`, raises an error if any of the
         pressures cannot be retrieved.
 
     """
@@ -169,15 +169,19 @@ async def spectrograph_pressures(spec: Spectrographs, ignore_errors: bool = True
 
         pressures = {}
 
-    response: dict[str, float] = {}
-    for key in pressures:
-        if "pressure" in key:
-            response[key] = pressures[key]
+    response: dict[str, float | None] = {}
+
+    spec_id = spec[-1]
+    keys = [f"{camera}{spec_id}_pressure" for camera in get_args(Cameras)]
+    for key in keys:
+        camera = key.split("_")[0]
+        if key in pressures:
+            response[camera] = pressures[key]
         else:
             if not ignore_errors:
                 raise ValueError(f"Cannot find pressure in key {key!r}.")
             else:
-                response[key] = math.nan
+                response[camera] = None
 
     return response
 
@@ -191,7 +195,7 @@ async def spectrograph_mechanics(spec: Spectrographs, ignore_errors: bool = True
         The spectrograph to retrieve the mechanics status for.
     ignore_errors
         If `True`, ignores errors when retrieving the status and replaces the
-        missing values with ``NA``. If `False`, raises an error if any of the
+        missing values with `None`. If `False`, raises an error if any of the
         status cannot be retrieved
 
     """
@@ -203,9 +207,9 @@ async def spectrograph_mechanics(spec: Spectrographs, ignore_errors: bool = True
             if not ignore_errors:
                 raise ValueError(f"Cannot find key {key!r} in IEB command replies.")
             else:
-                return "NA"
+                return None
 
-    response: dict[str, str] = {}
+    response: dict[str, str | None] = {}
 
     async with CluClient() as client:
         for device in ["shutter", "hartmann"]:
