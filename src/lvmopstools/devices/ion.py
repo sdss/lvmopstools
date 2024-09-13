@@ -8,11 +8,13 @@
 
 from __future__ import annotations
 
+import asyncio
 import warnings
+
+from typing import TypedDict
 
 from drift import Drift
 from drift.convert import data_to_float32
-from sdsstools import GatheringTaskGroup
 
 from lvmopstools import config
 from lvmopstools.retrier import Retrier
@@ -45,7 +47,7 @@ async def _read_one_ion_controller(ion_config: dict):
 
     results: dict[str, dict] = {}
 
-    drift = Drift(ion_config["host"], ion_config.get("port", 502))
+    drift = Drift(ion_config["host"], ion_config.get("port", 502), timeout=1)
 
     async with drift:
         for camera, camera_config in ion_config["cameras"].items():
@@ -66,6 +68,13 @@ async def _read_one_ion_controller(ion_config: dict):
     return results
 
 
+class IonPumpDict(TypedDict):
+    """Ion pump dictionary."""
+
+    pressure: float | None
+    on: bool | None
+
+
 async def read_ion_pumps(cameras: list[str] | None = None):
     """Reads the signal and on/off status from an ion pump.
 
@@ -78,17 +87,30 @@ async def read_ion_pumps(cameras: list[str] | None = None):
 
     ion_config: list[dict] = config["devices.ion"]
 
-    async with GatheringTaskGroup() as group:
-        for ion_controller in ion_config:
-            controller_cameras = ion_controller["cameras"]
-            if cameras is not None:
-                # Skip reading this controller if none of the cameras are in the list.
-                if len(set(cameras) & set(controller_cameras)) == 0:
-                    continue
+    results: dict[str, dict] = {}
+    tasks: list[asyncio.Task] = []
 
-            group.create_task(_read_one_ion_controller(ion_controller))
+    for ion_controller in ion_config:
+        controller_cameras = ion_controller["cameras"]
+        if cameras is not None:
+            # Skip reading this controller if none of the cameras are in the list.
+            if len(set(cameras) & set(controller_cameras)) == 0:
+                continue
 
-    results = {camera: item[camera] for item in group.results() for camera in item}
+        for camera in controller_cameras:
+            results[camera] = {"pressure": None, "on": None}
+
+        tasks.append(asyncio.create_task(_read_one_ion_controller(ion_controller)))
+
+    await asyncio.gather(*tasks, return_exceptions=True)
+
+    for task in tasks:
+        if task.exception():
+            warnings.warn(f"Error reading ion pump: {task.exception()}")
+            continue
+
+        for camera, item in task.result().items():
+            results[camera] = item
 
     if cameras is not None:
         results = {camera: results[camera] for camera in cameras if camera in results}
