@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### ⚙️ Internal
+
+* Removed unnecessary `astropy` dependency.
+
+
 ## 0.3.5 - September 13, 2024
 
 ### 🔧 Fixed
@@ -9,7 +16,7 @@
 
 ## 0.3.4 - September 12, 2024
 
-### ⚙️ Engineering
+### ⚙️ Internal
 
 * Improved typing.
 
@@ -27,14 +34,14 @@
 * Return `None` if ion pump fails to read.
 * Allow to pass `internal` to `send_clu_command`.
 
-### 🐛 Fixed
+### 🔧 Fixed
 
 * `Retrier` backoff delay is now calculated as `delay * exponential_backoff_base ** (attempt - 1)`.
 
 
 ## 0.3.2 - September 12, 2024
 
-### ⚙️ Engineering
+### ⚙️ Internal
 
 * Test `taiki-e/create-gh-release-action` workflow to release a new version.
 
@@ -53,7 +60,7 @@
 * Added support for reading spectrograph status, ion pumps, and thermistors.
 * Added `CliClient` class.
 
-### ⚙️ Engineering
+### ⚙️ Internal
 
 * Format code using `ruff`.
 * Migrate package management to `uv`.

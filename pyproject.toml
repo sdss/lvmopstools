@@ -12,7 +12,6 @@ requires-python = ">=3.10,<4"
 dependencies = [
     "sdsstools>=1.8.2",
     "sdss-clu>=2.2.7",
-    "astropy>=6.1",
     "sdss-drift>=1.2.0",
     "asyncudp>=0.11.0",
 ]
