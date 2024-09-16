@@ -11,13 +11,39 @@ from __future__ import annotations
 import asyncio
 import re
 
+from typing import Literal, overload
+
 import asyncudp
 
 from lvmopstools import config
 from lvmopstools.retrier import Retrier
 
 
-__all__ = ["read_thermistors"]
+__all__ = ["read_thermistors", "channel_to_valve"]
+
+
+@overload
+def channel_to_valve(reverse: Literal[False] = False) -> dict[int, str]: ...
+
+
+@overload
+def channel_to_valve(reverse: Literal[True] = True) -> dict[str, int]: ...
+
+
+def channel_to_valve(reverse: bool = False) -> dict[int, str] | dict[str, int]:
+    """Returns a mapping of thermistor channels to valve names.
+
+    With ``reverse`` returns the inverse mapping, valve to device channel.
+
+    """
+
+    valve_to_channel = config["devices.thermistors.channels"]
+
+    if reverse:
+        return valve_to_channel
+
+    channel_to_valve = {valve_to_channel[valve]: valve for valve in valve_to_channel}
+    return channel_to_valve
 
 
 @Retrier(max_attempts=3, delay=1)

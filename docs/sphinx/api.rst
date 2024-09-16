@@ -42,6 +42,7 @@ Thermistors
 ^^^^^^^^^^^
 
 .. autofunction:: lvmopstools.devices.thermistors.read_thermistors
+.. autofunction:: lvmopstools.devices.thermistors.channel_to_valve
 
 NPS
 ^^^

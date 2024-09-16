@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### 🚀 New
+
+* Added `channel_to_valve` mapping function to `lvmopstools.devices.ion`.
+
+
 ## 0.3.7 - September 15, 2024
 
 ### ✨ Improved
