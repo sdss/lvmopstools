@@ -1,6 +1,6 @@
 [project]
 name = "lvmopstools"
-version = "0.3.6a0"
+version = "0.3.6"
 description = "LVM tools and utilities for operations"
 authors = [
     { name = "José Sánchez-Gallego", email = "gallegoj@uw.edu" }
@@ -31,7 +31,6 @@ lvmopstools = "lvmopstools.__main__:lvmopstools"
 package = true
 dev-dependencies = [
     "ipython>=8.0.0",
-    "matplotlib>=3.1.1",
     "doc8>=0.8.0",
     "pytest>=5.2.2",
     "pytest-asyncio>=0.10.0",

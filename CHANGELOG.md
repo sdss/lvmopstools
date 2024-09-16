@@ -1,6 +1,6 @@
 # Changelog
 
-## Next version
+## 0.3.6 - September 15, 2024
 
 ### ⚙️ Internal
 
