@@ -6,6 +6,10 @@
 
 * Added `channel_to_valve` mapping function to `lvmopstools.devices.ion`.
 
+### ✨ Improved
+
+* Re-export all public device functions in `lvmopstools.devices`.
+
 
 ## 0.3.7 - September 15, 2024
 
