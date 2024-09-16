@@ -41,11 +41,18 @@ def convert_pressure(volts: float):
     return torr
 
 
+class IonPumpDict(TypedDict):
+    """Ion pump dictionary."""
+
+    pressure: float | None
+    on: bool | None
+
+
 @Retrier(max_attempts=3, delay=1)
-async def _read_one_ion_controller(ion_config: dict):
+async def _read_one_ion_controller(ion_config: dict) -> dict[str, IonPumpDict]:
     """Reads the signal and on/off status from an ion controller."""
 
-    results: dict[str, dict] = {}
+    results: dict[str, IonPumpDict] = {}
 
     drift = Drift(ion_config["host"], ion_config.get("port", 502), timeout=1)
 
@@ -63,16 +70,13 @@ async def _read_one_ion_controller(ion_config: dict):
             # onoff_status = bool(onoff.registers[0])
             onoff_status = pressure > 1e-8
 
+            # No point in reporting a bogus pressure.
+            if pressure < 1e-8:
+                pressure = None
+
             results[camera] = {"pressure": pressure, "on": onoff_status}
 
     return results
-
-
-class IonPumpDict(TypedDict):
-    """Ion pump dictionary."""
-
-    pressure: float | None
-    on: bool | None
 
 
 async def read_ion_pumps(cameras: list[str] | None = None) -> dict[str, IonPumpDict]:

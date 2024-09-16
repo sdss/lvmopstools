@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.7 - September 15, 2024
+
+### ✨ Improved
+
+* Report `None` for ion pump pressure if the value is less that 1e-8.
+
+
 ## 0.3.6 - September 15, 2024
 
 ### ⚙️ Internal
