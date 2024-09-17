@@ -9,6 +9,7 @@
 ### ✨ Improved
 
 * Re-export all public device functions in `lvmopstools.devices`.
+* Updated thermistor configuration.
 
 
 ## 0.3.7 - September 15, 2024
