@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### 🔧 Fixed
+
+* Make sure we close the connection to the thermistors.
+
+
 ## 0.3.8 - September 16, 2024
 
 ### 🚀 New

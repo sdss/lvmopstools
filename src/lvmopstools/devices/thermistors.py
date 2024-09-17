@@ -55,13 +55,19 @@ async def read_thermistors():
     host = th_config["host"]
     port = th_config["port"]
 
-    socket = await asyncio.wait_for(
-        asyncudp.create_socket(remote_addr=(host, port)),
-        timeout=5,
-    )
+    socket: asyncudp.Socket | None = None
 
-    socket.sendto(b"$016\r\n")
-    data, _ = await asyncio.wait_for(socket.recvfrom(), timeout=10)
+    try:
+        socket = await asyncio.wait_for(
+            asyncudp.create_socket(remote_addr=(host, port)),
+            timeout=5,
+        )
+
+        socket.sendto(b"$016\r\n")
+        data, _ = await asyncio.wait_for(socket.recvfrom(), timeout=10)
+    finally:
+        if socket:
+            socket.close()
 
     match = re.match(rb"!01([0-9A-F]+)\r", data)
     if match is None:
