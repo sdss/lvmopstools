@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### 🚀 New
+
+* Add `get_weather` function to retrieve weather data from the LCO API (via `lvmapi`).
+
+
 ## 0.3.9 - September 17, 2024
 
 ### 🔧 Fixed

@@ -2,6 +2,8 @@ rabbitmq:
   host: 10.8.38.21
   port: 5672
 
+api: http://10.8.38.21:8090/api
+
 devices:
   thermistors:
     host: 10.8.38.180
