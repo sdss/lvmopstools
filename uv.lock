@@ -600,6 +600,7 @@ dependencies = [
     { name = "sdss-clu" },
     { name = "sdss-drift" },
     { name = "sdsstools" },
+    { name = "typing-extensions" },
 ]
 
 [package.optional-dependencies]
@@ -640,6 +641,7 @@ requires-dist = [
     { name = "sdss-clu", specifier = ">=2.2.7" },
     { name = "sdss-drift", specifier = ">=1.2.0" },
     { name = "sdsstools", specifier = ">=1.8.2" },
+    { name = "typing-extensions", specifier = ">=4.12.2" },
 ]
 
 [package.metadata.requires-dev]
