@@ -9,6 +9,7 @@
 ### ✨ Improved
 
 * Better typing for `Retrier.__call__()`.
+* `Retrier` now accepts `on_retry` which is called when before retry is attempted with the exception that caused the retry.
 
 ### 🔧 Fixed
 

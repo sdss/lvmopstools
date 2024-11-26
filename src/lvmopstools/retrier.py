@@ -72,6 +72,9 @@ class Retrier:
         The base for the exponential backoff.
     max_delay
         The maximum delay between attempts when using exponential backoff.
+    on_retry
+        A function that will be called when a retry is attempted. The function
+        should accept an exception as its only argument.
 
     """
 
@@ -80,6 +83,7 @@ class Retrier:
     use_exponential_backoff: bool = True
     exponential_backoff_base: float = 2
     max_delay: float = 32.0
+    on_retry: Callable[[Exception], None] | None = None
 
     def calculate_delay(self, attempt: int) -> float:
         """Calculates the delay for a given attempt."""
@@ -96,15 +100,20 @@ class Retrier:
             return self.delay
 
     @overload
-    def __call__(self: Self, func: Callable[P, T]) -> Callable[P, T]: ...
+    def __call__(
+        self: Self,
+        func: Callable[P, T],
+    ) -> Callable[P, T]: ...
 
     @overload
     def __call__(
-        self: Self, func: Callable[P, Awaitable[T]]
+        self: Self,
+        func: Callable[P, Awaitable[T]],
     ) -> Callable[P, Awaitable[T]]: ...
 
     def __call__(
-        self, func: Callable[P, T] | Callable[P, Awaitable[T]]
+        self,
+        func: Callable[P, T] | Callable[P, Awaitable[T]],
     ) -> Callable[P, T] | Callable[P, Awaitable[T]]:
         """Wraps a function to retry it if it fails."""
 
@@ -121,6 +130,8 @@ class Retrier:
                         if attempt >= self.max_attempts:
                             raise ee
                         else:
+                            if self.on_retry:
+                                self.on_retry(ee)
                             await asyncio.sleep(self.calculate_delay(attempt))
 
             return async_wrapper
@@ -138,6 +149,8 @@ class Retrier:
                         if attempt >= self.max_attempts:
                             raise ee
                         else:
+                            if self.on_retry:
+                                self.on_retry(ee)
                             time.sleep(self.calculate_delay(attempt))
 
             return wrapper

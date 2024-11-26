@@ -8,6 +8,8 @@
 
 from __future__ import annotations
 
+from unittest.mock import MagicMock
+
 from typing import Any, Awaitable, Callable, Literal, overload
 
 import pytest
@@ -61,7 +63,13 @@ def get_test_function(
     return test_function_async if async_ else test_function
 
 
-def _get_retrier(exponential_backoff: bool):
+on_retry_mock = MagicMock()
+
+
+def _get_retrier(
+    exponential_backoff: bool,
+    on_retry: Callable[[Exception], None] | None = None,
+):
     if exponential_backoff:
         base = 1.1
     else:
@@ -70,13 +78,20 @@ def _get_retrier(exponential_backoff: bool):
     return Retrier(
         use_exponential_backoff=exponential_backoff,
         exponential_backoff_base=base,
+        on_retry=on_retry,
     )
 
 
 @pytest.mark.parametrize("fail", [False, True])
 @pytest.mark.parametrize("exponential_backoff", [False, True])
-def test_retrier(fail: bool, exponential_backoff: bool):
-    retrier = _get_retrier(exponential_backoff)
+@pytest.mark.parametrize("on_retry", [None, on_retry_mock])
+def test_retrier(
+    fail: bool,
+    exponential_backoff: bool,
+    on_retry: Callable[[Exception], None] | None,
+):
+    on_retry_mock.reset_mock()
+    retrier = _get_retrier(exponential_backoff, on_retry=on_retry)
     test_function = retrier(get_test_function(async_=False, fail=fail))
 
     if fail:
@@ -84,12 +99,22 @@ def test_retrier(fail: bool, exponential_backoff: bool):
             test_function()
     else:
         assert test_function() is True
+        if on_retry:
+            assert on_retry_mock.call_count == 1
+        else:
+            assert on_retry_mock.call_count == 0
 
 
 @pytest.mark.parametrize("fail", [False, True])
 @pytest.mark.parametrize("exponential_backoff", [False, True])
-async def test_retrier_async(fail: bool, exponential_backoff: bool):
-    retrier = _get_retrier(exponential_backoff)
+@pytest.mark.parametrize("on_retry", [None, on_retry_mock])
+async def test_retrier_async(
+    fail: bool,
+    exponential_backoff: bool,
+    on_retry: Callable[[Exception], None] | None,
+):
+    on_retry_mock.reset_mock()
+    retrier = _get_retrier(exponential_backoff, on_retry=on_retry)
     test_function = retrier(get_test_function(async_=True, fail=fail))
 
     if fail:
@@ -97,3 +122,7 @@ async def test_retrier_async(fail: bool, exponential_backoff: bool):
             await test_function()
     else:
         assert (await test_function()) is True
+        if on_retry:
+            assert on_retry_mock.call_count == 1
+        else:
+            assert on_retry_mock.call_count == 0
