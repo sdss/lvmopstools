@@ -33,6 +33,9 @@ class MockSocket:
     async def recvfrom(self):
         return self.next_recv, None
 
+    async def close(self):
+        pass
+
 
 async def test_read_thermistors(mocker: MockerFixture):
     """Tests read_thermistors."""
@@ -65,10 +68,11 @@ async def test_read_ion_pumps(ion_pump_server):
 
     values = await read_ion_pumps()
 
+    assert values["b2"]["pressure"] is not None
     assert values["b2"]["pressure"] > 1e-6
     assert values["b2"]["on"]
 
-    assert values["z2"]["pressure"] < 1e-8
+    assert values["z2"]["pressure"] is None
     assert values["z2"]["on"] is False
 
     values_b2 = await read_ion_pumps(cameras=["b2"])

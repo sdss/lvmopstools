@@ -10,6 +10,11 @@
 
 * Better typing for `Retrier.__call__()`.
 
+### 🔧 Fixed
+
+* Fix some unittests.
+
+
 ### 🚀 New
 
 * Add `get_weather` function to retrieve weather data from the LCO API (via `lvmapi`).
