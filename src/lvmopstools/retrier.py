@@ -9,14 +9,26 @@
 from __future__ import annotations
 
 import asyncio
+import inspect
 import time
 from dataclasses import dataclass
 from functools import wraps
 
-from typing import Any, Callable
+from typing import (
+    Any,
+    Awaitable,
+    Callable,
+    ParamSpec,
+    Self,
+    TypeVar,
+    overload,
+)
 
 
 __all__ = ["Retrier"]
+
+T = TypeVar("T", bound=Any)
+P = ParamSpec("P")
 
 
 @dataclass
@@ -49,9 +61,6 @@ class Retrier:
         The maximum number of attempts before giving up.
     delay
         The delay between attempts, in seconds.
-    raise_on_max_attempts
-        Whether to raise an exception if the maximum number of attempts is reached.
-        Otherwise the wrapped function will return :obj:`None` after the last attempt.
     use_exponential_backoff
         Whether to use exponential backoff for the delay between attempts. If
         :obj:`True`, the delay will be
@@ -67,7 +76,6 @@ class Retrier:
 
     max_attempts: int = 3
     delay: float = 1
-    raise_on_max_attempts: bool = True
     use_exponential_backoff: bool = True
     exponential_backoff_base: float = 2
     max_delay: float = 32.0
@@ -86,39 +94,49 @@ class Retrier:
         else:
             return self.delay
 
-    def __call__(self, func: Callable[..., Any]) -> Callable[..., Any]:
+    @overload
+    def __call__(self: Self, func: Callable[P, T]) -> Callable[P, T]: ...
+
+    @overload
+    def __call__(
+        self: Self, func: Callable[P, Awaitable[T]]
+    ) -> Callable[P, Awaitable[T]]: ...
+
+    def __call__(
+        self, func: Callable[P, T] | Callable[P, Awaitable[T]]
+    ) -> Callable[P, T] | Callable[P, Awaitable[T]]:
         """Wraps a function to retry it if it fails."""
 
-        is_coroutine = asyncio.iscoroutinefunction(func)
+        if inspect.iscoroutinefunction(func):
 
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            attempt = 0
-            while True:
-                try:
-                    return func(*args, **kwargs)
-                except Exception as ee:
-                    attempt += 1
-                    if attempt >= self.max_attempts:
-                        if self.raise_on_max_attempts:
+            @wraps(func)
+            async def async_wrapper(*args: P.args, **kwargs: P.kwargs):
+                attempt = 0
+                while True:
+                    try:
+                        return await func(*args, **kwargs)
+                    except Exception as ee:
+                        attempt += 1
+                        if attempt >= self.max_attempts:
                             raise ee
-                        return
-                    else:
-                        time.sleep(self.calculate_delay(attempt))
+                        else:
+                            await asyncio.sleep(self.calculate_delay(attempt))
 
-        @wraps(func)
-        async def async_wrapper(*args, **kwargs):
-            attempt = 0
-            while True:
-                try:
-                    return await func(*args, **kwargs)
-                except Exception as ee:
-                    attempt += 1
-                    if attempt >= self.max_attempts:
-                        if self.raise_on_max_attempts:
+            return async_wrapper
+
+        else:
+
+            @wraps(func)
+            def wrapper(*args: P.args, **kwargs: P.kwargs):
+                attempt = 0
+                while True:
+                    try:
+                        return func(*args, **kwargs)
+                    except Exception as ee:
+                        attempt += 1
+                        if attempt >= self.max_attempts:
                             raise ee
-                        return
-                    else:
-                        await asyncio.sleep(self.calculate_delay(attempt))
+                        else:
+                            time.sleep(self.calculate_delay(attempt))
 
-        return wrapper if not is_coroutine else async_wrapper
+            return wrapper
