@@ -26,7 +26,9 @@ influxdb = [ "influxdb-client>=1.47.0" ]
 schedule = [
     "astropy>=6.0.0; python_version<'3.11'",
     "astropy>=7.0.0; python_version>='3.11'",
-    "astroplan>=0.10.1" ]
+    "astroplan>=0.10.1",
+    "cachetools>=5.5.0"
+]
 
 [project.urls]
 Homepage = "https://github.com/sdss/lvmopstools"

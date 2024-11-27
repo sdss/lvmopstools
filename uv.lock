@@ -794,6 +794,7 @@ schedule = [
     { name = "astroplan" },
     { name = "astropy", version = "6.1.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "astropy", version = "7.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "cachetools" },
 ]
 
 [package.dev-dependencies]
@@ -826,6 +827,7 @@ requires-dist = [
     { name = "astropy", marker = "python_full_version >= '3.11' and extra == 'schedule'", specifier = ">=7.0.0" },
     { name = "astropy", marker = "python_full_version < '3.11' and extra == 'schedule'", specifier = ">=6.0.0" },
     { name = "asyncudp", specifier = ">=0.11.0" },
+    { name = "cachetools", marker = "extra == 'schedule'", specifier = ">=5.5.0" },
     { name = "httpx", specifier = ">=0.27.2" },
     { name = "influxdb-client", marker = "extra == 'influxdb'", specifier = ">=1.47.0" },
     { name = "kubernetes", marker = "extra == 'kubernetes'", specifier = ">=31.0.0" },
