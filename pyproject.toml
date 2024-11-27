@@ -1,6 +1,6 @@
 [project]
 name = "lvmopstools"
-version = "0.3.10a0"
+version = "0.4.0"
 description = "LVM tools and utilities for operations"
 authors = [
     { name = "José Sánchez-Gallego", email = "gallegoj@uw.edu" }
@@ -21,6 +21,8 @@ dependencies = [
 
 [project.optional-dependencies]
 ds9 = [ "pyds9>=1.8.1" ]
+kubernetes = [ "kubernetes>=31.0.0" ]
+influxdb = [ "influxdb-client>=1.47.0" ]
 
 [project.urls]
 Homepage = "https://github.com/sdss/lvmopstools"
@@ -87,6 +89,8 @@ omit = [
     "src/lvmopstools/__main__.py",
     "src/lvmopstools/clu.py",
     "src/lvmopstools/ds9.py",
+    "src/lvmopstools/kubernetes.py",
+    "src/lvmopstools/influxdb.py",
     "src/lvmopstools/utils.py",
     "src/lvmopstools/devices/specs.py",
     "src/lvmopstools/devices/nps.py"
