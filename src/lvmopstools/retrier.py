@@ -11,7 +11,7 @@ from __future__ import annotations
 import asyncio
 import inspect
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import wraps
 
 from typing import (
@@ -75,6 +75,9 @@ class Retrier:
     on_retry
         A function that will be called when a retry is attempted. The function
         should accept an exception as its only argument.
+    raise_on_exception_class
+        A list of exception classes that will cause an exception to be raised
+        without retrying.
 
     """
 
@@ -84,6 +87,7 @@ class Retrier:
     exponential_backoff_base: float = 2
     max_delay: float = 32.0
     on_retry: Callable[[Exception], None] | None = None
+    raise_on_exception_class: list[type[Exception]] = field(default_factory=list)
 
     def calculate_delay(self, attempt: int) -> float:
         """Calculates the delay for a given attempt."""
@@ -129,6 +133,8 @@ class Retrier:
                         attempt += 1
                         if attempt >= self.max_attempts:
                             raise ee
+                        elif isinstance(ee, tuple(self.raise_on_exception_class)):
+                            raise ee
                         else:
                             if self.on_retry:
                                 self.on_retry(ee)
@@ -147,6 +153,8 @@ class Retrier:
                     except Exception as ee:
                         attempt += 1
                         if attempt >= self.max_attempts:
+                            raise ee
+                        elif isinstance(ee, tuple(self.raise_on_exception_class)):
                             raise ee
                         else:
                             if self.on_retry:

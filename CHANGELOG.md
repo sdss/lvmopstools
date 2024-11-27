@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### ✨ Improved
+
+* Add option to `Retrier` to immediately raise an exception if the exception class matches a given list of exceptions.
+
+
 ## 0.4.1 - November 27, 2024
 
 ### 🚀 New

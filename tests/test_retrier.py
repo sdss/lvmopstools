@@ -126,3 +126,31 @@ async def test_retrier_async(
             assert on_retry_mock.call_count == 1
         else:
             assert on_retry_mock.call_count == 0
+
+
+def test_retier_raise_on_exception_class():
+    def raise_runtime_error():
+        raise RuntimeError()
+
+    on_retry_mock.reset_mock()
+    retrier = Retrier(raise_on_exception_class=[RuntimeError], on_retry=on_retry_mock)
+    test_function = retrier(raise_runtime_error)
+
+    with pytest.raises(RuntimeError):
+        test_function()
+
+    on_retry_mock.assert_not_called()
+
+
+async def test_retier_raise_on_exception_class_async():
+    async def raise_runtime_error():
+        raise RuntimeError()
+
+    on_retry_mock.reset_mock()
+    retrier = Retrier(raise_on_exception_class=[RuntimeError], on_retry=on_retry_mock)
+    test_function = retrier(raise_runtime_error)
+
+    with pytest.raises(RuntimeError):
+        await test_function()
+
+    on_retry_mock.assert_not_called()
