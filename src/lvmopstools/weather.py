@@ -21,6 +21,27 @@ __all__ = ["get_weather_data"]
 WEATHER_URL = "http://dataservice.lco.cl/vaisala/data"
 
 
+def format_time(time: str | float) -> str:
+    """Formats a time string for the LCO weather API format"""
+
+    if isinstance(time, (float, int)):
+        time = (
+            datetime.datetime.fromtimestamp(
+                time,
+                tz=datetime.UTC,
+            )
+            .isoformat(timespec="seconds")
+            .replace("+00:00", "")
+        )
+
+    if "T" in time:
+        time = time.replace("T", " ")
+    if "." in time:
+        time = time.split(".")[0]
+
+    return time
+
+
 async def get_weather_data(
     start_time: str | float,
     end_time: str | float | None = None,
@@ -52,27 +73,8 @@ async def get_weather_data(
     if station not in ["DuPont", "C40", "Magellan"]:
         raise ValueError("station must be one of 'DuPont', 'C40', or 'Magellan'.")
 
-    if isinstance(start_time, (float, int)):
-        start_time = (
-            datetime.datetime.fromtimestamp(
-                start_time,
-                tz=datetime.UTC,
-            )
-            .isoformat()
-            .replace("+00:00", "Z")
-        )
-
-    end_time = end_time or time.time()
-
-    if isinstance(end_time, (float, int)):
-        end_time = (
-            datetime.datetime.fromtimestamp(
-                end_time,
-                tz=datetime.UTC,
-            )
-            .isoformat()
-            .replace("+00:00", "Z")
-        )
+    start_time = format_time(start_time)
+    end_time = format_time(end_time or time.time())
 
     async with httpx.AsyncClient() as client:
         response = await client.get(
@@ -98,7 +100,7 @@ async def get_weather_data(
 
     df = polars.DataFrame(results)
     df = df.with_columns(
-        ts=polars.col("ts").str.to_datetime(time_unit="ms"),
+        ts=polars.col("ts").str.to_datetime(time_unit="ms", time_zone="UTC"),
         station=polars.lit(station, polars.String),
     )
 
@@ -143,10 +145,13 @@ async def get_weather_data(
         - ((100 - polars.col.relative_humidity) / 5.0).round(2)
     )
 
+    # Change float precision to f32
+    df = df.with_columns(polars.selectors.float().cast(polars.Float32))
+
     return df
 
 
-def is_measurament_safe(
+def is_weather_field_safe(
     data: polars.DataFrame,
     measurement: str,
     threshold: float,
@@ -154,7 +159,7 @@ def is_measurament_safe(
     rolling_average_window: int = 30,
     reopen_value: float | None = None,
 ):
-    """Determines whether an alert should be raised for a given measurement.
+    """Determines whether an alert should be raised for a given weather measurement.
 
     An alert will be issued if the rolling average value of the ``measurement``
     (a column in ``data``) over the last ``window`` seconds is above the
@@ -163,6 +168,11 @@ def is_measurament_safe(
     ``threshold`` value) in a rolling.
 
     ``window`` and ``rolling_average_window`` are in minutes.
+
+    Examples
+    --------
+    >>> is_weather_field_safe(data, "wind_speed_avg", 35)
+    True
 
     Returns
     -------
