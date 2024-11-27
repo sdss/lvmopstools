@@ -8,7 +8,8 @@
 
 ### 🚀 New
 
-* Add `get_weather` function to retrieve weather data from the LCO API (via `lvmapi`).
+* Add `get_weather_data` and `is_weather_data_safe` functions to retrieve weather data from the LCO API (ported from `lvmapi`).
+* Added `Kubernetes` class and InfluxDB tools.
 
 ### ✨ Improved
 
