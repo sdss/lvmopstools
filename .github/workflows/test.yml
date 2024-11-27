@@ -34,7 +34,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv sync --no-dev --frozen
+          uv sync --no-dev --frozen --extra schedule
 
       - name: Test with pytest
         run: |

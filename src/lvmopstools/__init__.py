@@ -19,7 +19,7 @@ from sdsstools.metadata import get_package_version
 __version__ = get_package_version(path=__file__, package_name="lvmopstools")
 
 
-DEFAULT_CONFIG_FILE = pathlib.Path(__file__).parent / "config.yaml"
+DEFAULT_CONFIG_FILE = pathlib.Path(__file__).parent / "data" / "config.yaml"
 CONFIG_FILE = pathlib.Path(
     os.environ.get("LVMOPSTOOLS_CONFIG_FILE", DEFAULT_CONFIG_FILE)
 )

@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### 🚀 New
+
+* Added schedule tools, migrated from `lvmapi`.
+
+
 ## 0.4.0 - November 27, 2024
 
 ### 💥 Breaking changes
