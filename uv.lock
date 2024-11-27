@@ -768,7 +768,7 @@ wheels = [
 
 [[package]]
 name = "lvmopstools"
-version = "0.4.2"
+version = "0.4.3a0"
 source = { editable = "." }
 dependencies = [
     { name = "asyncudp" },
