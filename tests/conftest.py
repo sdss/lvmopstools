@@ -41,7 +41,7 @@ class TestActor(LVMActor):
 
 @pytest.fixture(scope="session", autouse=True)
 def monkeypatch_config():
-    set_config(pathlib.Path(__file__).parent / "test_config.yaml")
+    set_config(pathlib.Path(__file__).parent / "data" / "test_config.yaml")
 
 
 @pytest.fixture()

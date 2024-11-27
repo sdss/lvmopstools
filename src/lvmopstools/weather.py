@@ -15,7 +15,7 @@ import httpx
 import polars
 
 
-__all__ = ["get_weather_data"]
+__all__ = ["get_weather_data", "is_weather_data_safe"]
 
 
 WEATHER_URL = "http://dataservice.lco.cl/vaisala/data"
@@ -40,6 +40,36 @@ def format_time(time: str | float) -> str:
         time = time.split(".")[0]
 
     return time
+
+
+async def get_from_lco_api(
+    start_time: str,
+    end_time: str,
+    station: str,
+):  # pragma: no cover
+    """Queries the LCO API for weather data."""
+
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            WEATHER_URL,
+            params={
+                "start_ts": start_time,
+                "end_ts": end_time,
+                "station": station,
+            },
+        )
+
+        if response.status_code != 200:
+            raise ValueError(f"Failed to get weather data: {response.text}")
+
+        data = response.json()
+
+        if "Error" in data:
+            raise ValueError(f"Failed to get weather data: {data['Error']}")
+        elif "results" not in data or data["results"] is None:
+            raise ValueError("Failed to get weather data: no results found.")
+
+    return data["results"]
 
 
 async def get_weather_data(
@@ -76,27 +106,7 @@ async def get_weather_data(
     start_time = format_time(start_time)
     end_time = format_time(end_time or time.time())
 
-    async with httpx.AsyncClient() as client:
-        response = await client.get(
-            WEATHER_URL,
-            params={
-                "start_ts": start_time,
-                "end_ts": end_time,
-                "station": station,
-            },
-        )
-
-        if response.status_code != 200:
-            raise ValueError(f"Failed to get weather data: {response.text}")
-
-        data = response.json()
-
-        if "Error" in data:
-            raise ValueError(f"Failed to get weather data: {data['Error']}")
-        elif "results" not in data or data["results"] is None:
-            raise ValueError("Failed to get weather data: no results found.")
-
-    results = data["results"]
+    results = await get_from_lco_api(start_time, end_time, station)
 
     df = polars.DataFrame(results)
     df = df.with_columns(
@@ -151,18 +161,18 @@ async def get_weather_data(
     return df
 
 
-def is_weather_field_safe(
+def is_weather_data_safe(
     data: polars.DataFrame,
     measurement: str,
     threshold: float,
     window: int = 30,
-    rolling_average_window: int = 30,
+    rolling_average_window: int = 10,
     reopen_value: float | None = None,
 ):
     """Determines whether an alert should be raised for a given weather measurement.
 
     An alert will be issued if the rolling average value of the ``measurement``
-    (a column in ``data``) over the last ``window`` seconds is above the
+    (a column in ``data``) over the last ``window`` minutes is above the
     ``threshold``. Once the alert has been raised  the value of the ``measurement``
     must fall below the ``reopen_value`` to close the alert (defaults to the same
     ``threshold`` value) in a rolling.
@@ -171,7 +181,7 @@ def is_weather_field_safe(
 
     Examples
     --------
-    >>> is_weather_field_safe(data, "wind_speed_avg", 35)
+    >>> is_weather_data_safe(data, "wind_speed_avg", 35)
     True
 
     Returns
@@ -188,16 +198,18 @@ def is_weather_field_safe(
     reopen_value = reopen_value or threshold
 
     data = data.select(polars.col.ts, polars.col(measurement))
+    data = data.filter(~polars.all_horizontal(polars.exclude("ts").is_null()))
     data = data.with_columns(
+        timestamp=polars.col.ts.dt.timestamp("ms") / 1000,
         average=polars.col(measurement).rolling_mean_by(
             by="ts",
             window_size=f"{rolling_average_window}m",
-        )
+        ),
     )
 
     # Get data from the last window`.
     now = time.time()
-    data_window = data.filter(polars.col.ts.dt.timestamp("ms") > (now - window * 60))
+    data_window = data.filter(polars.col.timestamp > (now - window * 60))
 
     # If any of the values in the last "window" is above the threshold, it's unsafe.
     if (data_window["average"] >= threshold).any():
@@ -214,10 +226,10 @@ def is_weather_field_safe(
     # be below the reopen value. Otherwise, we consider it's safe.
 
     prev_window = data.filter(
-        polars.col.ts.dt.timestamp("ms") > (now - 2 * window * 60),
-        polars.col.ts.dt.timestamp("ms") < (now - window * 60),
+        polars.col.timestamp > (now - 2 * window * 60),
+        polars.col.timestamp < (now - window * 60),
     )
     if (prev_window["average"] >= threshold).any():
-        return (data_window["average"] < reopen_value).all()
+        return False
 
     return True
