@@ -1,6 +1,6 @@
 # Changelog
 
-## Next version
+## 0.4.0 - November 27, 2024
 
 ### 💥 Breaking changes
 
