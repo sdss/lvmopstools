@@ -28,7 +28,7 @@ def format_time(time: str | float) -> str:
         time = (
             datetime.datetime.fromtimestamp(
                 time,
-                tz=datetime.UTC,
+                tz=datetime.timezone.utc,
             )
             .isoformat(timespec="seconds")
             .replace("+00:00", "")
