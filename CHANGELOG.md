@@ -1,5 +1,16 @@
 # Changelog
 
+## Next version
+
+### 🚀 New
+
+* Add `with_timeout()` to utils.
+
+### ✨ Improved
+
+* Add test coverage for `utils.py`.
+
+
 ## 0.4.2 - November 27, 2024
 
 ### ✨ Improved

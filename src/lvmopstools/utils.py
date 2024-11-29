@@ -10,15 +10,21 @@ from __future__ import annotations
 
 import asyncio
 
-from typing import Any
+from typing import Any, Coroutine, TypeVar
 
 from clu import AMQPClient
 
 
-__all__ = ["get_amqp_client", "get_exception_data", "stop_event_loop"]
+__all__ = [
+    "get_amqp_client",
+    "get_exception_data",
+    "stop_event_loop",
+    "with_timeout",
+    "is_notebook",
+]
 
 
-async def get_amqp_client(**kwargs) -> AMQPClient:
+async def get_amqp_client(**kwargs) -> AMQPClient:  # pragma: no cover
     """Returns a CLU AMQP client."""
 
     amqp_client = AMQPClient(**kwargs)
@@ -62,7 +68,7 @@ def get_exception_data(exception: Exception | None, traceback_frame: int = 0):
     return exception_data
 
 
-async def stop_event_loop(timeout: float | None = 5):
+async def stop_event_loop(timeout: float | None = 5):  # pragma: no cover
     """Cancels all running tasks and stops the event loop."""
 
     for task in asyncio.all_tasks():
@@ -93,3 +99,42 @@ def is_notebook() -> bool:
             return False  # Other type (?)
     except NameError:
         return False  # Probably standard Python interpreter
+
+
+T = TypeVar("T", bound=Any)
+
+
+async def with_timeout(
+    coro: Coroutine[Any, Any, T],
+    timeout: float | None,
+    raise_on_timeout: bool = True,
+) -> T | None:
+    """Runs a coroutine with a timeout.
+
+    Parameters
+    ----------
+    coro
+        The coroutine to run.
+    timeout
+        The timeout in seconds.
+    raise_on_timeout
+        If :obj:`True`, raises a :class:`asyncio.TimeoutError` if the coroutine times
+        out, otherwise returns :obj:`None`.
+
+    Returns
+    -------
+    result
+        The result of the coroutine.
+
+    Raises
+    ------
+    asyncio.TimeoutError
+        If the coroutine times out.
+
+    """
+
+    try:
+        return await asyncio.wait_for(coro, timeout)
+    except asyncio.TimeoutError:
+        if raise_on_timeout:
+            raise asyncio.TimeoutError(f"Timed out after {timeout} seconds.")

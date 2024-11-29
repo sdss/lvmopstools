@@ -97,7 +97,6 @@ omit = [
     "src/lvmopstools/ds9.py",
     "src/lvmopstools/kubernetes.py",
     "src/lvmopstools/influxdb.py",
-    "src/lvmopstools/utils.py",
     "src/lvmopstools/devices/specs.py",
     "src/lvmopstools/devices/nps.py"
 ]
