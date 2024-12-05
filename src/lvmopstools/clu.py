@@ -55,7 +55,7 @@ class CluClient:
     __initialised: bool = False
     __instance: CluClient | None = None
 
-    def __new__(cls, host: str | None = None, port: int | None = None):
+    def __new__(cls, host: str | None = None, port: int | None = None, **kwargs):
         if (
             cls.__instance is None
             or (host is not None and cls.__instance.host != host)
@@ -68,7 +68,7 @@ class CluClient:
 
         return cls.__instance
 
-    def __init__(self, host: str | None = None, port: int | None = None):
+    def __init__(self, host: str | None = None, port: int | None = None, **kwargs):
         if self.__initialised is True:
             # Bail out if we are returning a singleton instance
             # which is already initialised.
@@ -80,7 +80,7 @@ class CluClient:
         self.host: str = host or host_default
         self.port: int = port or port_default
 
-        self.client = AMQPClient(host=self.host, port=self.port)
+        self.client = AMQPClient(host=self.host, port=self.port, **kwargs)
         self.__initialised = True
 
         self._lock = asyncio.Lock()

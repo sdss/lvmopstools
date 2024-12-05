@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.4 - December 5, 2024
+
+### ✨ Improved
+
+* Allow passing kwargs to the `AMQPClient` in `CluClient`.
+
+
 ## 0.4.3 - November 29, 2024
 
 ### 🚀 New
