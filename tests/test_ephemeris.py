@@ -9,8 +9,10 @@
 from __future__ import annotations
 
 import polars
+import pytest_mock
+from astropy.time import Time
 
-from lvmopstools.ephemeris import create_schedule, get_ephemeris_summary
+from lvmopstools.ephemeris import create_schedule, get_ephemeris_summary, is_sun_up
 
 
 def test_create_schedule():
@@ -34,3 +36,14 @@ def test_get_ephemeris_summary_not_in_file():
     assert isinstance(summary, dict)
     assert not summary["from_file"]
     assert summary["sunset"] is not None
+
+
+def test_is_sun_up(mocker: pytest_mock.MockFixture):
+    mocker.patch("lvmopstools.ephemeris.get_sjd", return_value=60666)
+    mocker.patch(
+        "lvmopstools.ephemeris.Time.now",
+        return_value=Time("2024-12-21 23:51:18.464285", format="iso", scale="utc"),
+    )
+
+    assert is_sun_up() is True
+    assert is_sun_up(include_twilight=True) is False

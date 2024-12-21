@@ -202,3 +202,14 @@ def get_ephemeris_summary(sjd: int | None = None) -> EphemerisDict:
         "moon_illumination": round(float(data["moon_illumination"][0]), 3),
         "from_file": from_file,
     }
+
+
+def is_sun_up(include_twilight: bool = False):
+    """Determines whether the Sun is up at the current time."""
+
+    eph = get_ephemeris_summary()
+
+    if include_twilight:
+        return not eph["is_night"] and not eph["is_twilight"]
+    else:
+        return not eph["is_night"]
