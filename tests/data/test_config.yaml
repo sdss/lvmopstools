@@ -1,3 +1,8 @@
+pubsub:
+  connection_string: amqp://guest:guest@localhost:<random-port>
+  exchange_name: lvmops
+  routing_key: data
+
 devices:
   thermistors:
     host: 10.8.38.180
