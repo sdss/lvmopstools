@@ -11,7 +11,7 @@ from __future__ import annotations
 import json
 import time
 import uuid
-from enum import Enum, auto
+from enum import auto
 
 from typing import (
     TYPE_CHECKING,
@@ -27,6 +27,7 @@ from typing import (
 import aio_pika
 from aio_pika.abc import AbstractIncomingMessage
 from pydantic import BaseModel, Field
+from strenum import UppercaseStrEnum
 from typing_extensions import Self
 
 from lvmopstools import config
@@ -47,15 +48,7 @@ SubCallbackType = Callable[["Message"], Awaitable[None]]
 MessageType = Literal["event", "notification", "custom"]
 
 
-class StrEnum(Enum):
-    """Upper-case string enumeration."""
-
-    @staticmethod
-    def _generate_next_value_(name, *_) -> str:
-        return name.upper()
-
-
-class Event(StrEnum):
+class Event(UppercaseStrEnum):
     """Enumeration with the event types."""
 
     ERROR = auto()
@@ -110,9 +103,9 @@ class Message:
 
         if self.message_type == "event":
             self.event_name = self.body["event_name"].upper()
-            if self.event_name in Event:
+            try:
                 self.event = Event(self.event_name)
-            else:
+            except ValueError:
                 self.event = Event.UNCATEGORISED
 
 

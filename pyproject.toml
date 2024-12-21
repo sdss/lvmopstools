@@ -18,7 +18,8 @@ dependencies = [
     "polars>=1.13.0",
     "typing-extensions>=4.12.2",
     "aio-pika>=9.5.3",
-    "pydantic>=2.10.3"
+    "pydantic>=2.10.3",
+    "strenum>=0.4.15",
 ]
 
 [project.optional-dependencies]
