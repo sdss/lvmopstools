@@ -21,13 +21,13 @@ from typing import (
     Callable,
     ClassVar,
     Literal,
-    Self,
     overload,
 )
 
 import aio_pika
 from aio_pika.abc import AbstractIncomingMessage
 from pydantic import BaseModel, Field
+from typing_extensions import Self
 
 from lvmopstools import config
 from lvmopstools.retrier import Retrier
