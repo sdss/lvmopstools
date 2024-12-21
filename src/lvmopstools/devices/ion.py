@@ -11,7 +11,7 @@ from __future__ import annotations
 import asyncio
 import warnings
 
-from typing import TypedDict
+from typing import TypedDict, cast
 
 from drift import Drift
 from drift.convert import data_to_float32
@@ -61,10 +61,12 @@ async def _read_one_ion_controller(ion_config: dict) -> dict[str, IonPumpDict]:
             signal_address = camera_config["signal_address"]
             # on_off_address = camera_config["on_off_address"]
 
-            signal = await drift.client.read_input_registers(signal_address, 2)
-            # onoff = await drift.client.read_input_registers(on_off_address, 1)
+            signal = await drift.client.read_input_registers(signal_address, count=2)
+            # onoff = await drift.client.read_input_registers(on_off_address, count=1)
 
-            diff_volt = data_to_float32(tuple(signal.registers))
+            registers = cast(tuple[int, int], tuple(signal.registers))
+
+            diff_volt = data_to_float32(registers)
             pressure = convert_pressure(diff_volt)
 
             # onoff_status = bool(onoff.registers[0])

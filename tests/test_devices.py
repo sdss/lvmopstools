@@ -88,13 +88,16 @@ async def test_toggle_ion_pump(ion_pump_server):
     on_off_address = b2_config["on_off_address"]
 
     async with drift:
-        register_z2 = await drift.client.read_holding_registers(on_off_address, 1)
+        register_z2 = await drift.client.read_holding_registers(
+            on_off_address,
+            count=1,
+        )
         assert register_z2.registers[0] == 0
 
     await toggle_ion_pump("b2", True)
 
     async with drift:
-        register_z2 = await drift.client.read_holding_registers(0, 50)
+        register_z2 = await drift.client.read_holding_registers(0, count=50)
         assert sum([reg > 0 for reg in register_z2.registers]) == 1
 
 
@@ -106,5 +109,5 @@ async def test_toggle_ion_pump_all(ion_pump_server):
     await toggle_ion_pump(ALL, True)
 
     async with drift:
-        register_z2 = await drift.client.read_holding_registers(0, 50)
+        register_z2 = await drift.client.read_holding_registers(0, count=50)
         assert sum([reg > 0 for reg in register_z2.registers]) == 3
