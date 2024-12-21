@@ -11,7 +11,7 @@ from __future__ import annotations
 import json
 import time
 import uuid
-from enum import StrEnum, auto
+from enum import Enum, auto
 
 from typing import (
     TYPE_CHECKING,
@@ -47,6 +47,14 @@ SubCallbackType = Callable[["Message"], Awaitable[None]]
 MessageType = Literal["event", "notification", "custom"]
 
 
+class StrEnum(Enum):
+    """Upper-case string enumeration."""
+
+    @staticmethod
+    def _generate_next_value_(name, *_) -> str:
+        return name.upper()
+
+
 class Event(StrEnum):
     """Enumeration with the event types."""
 
@@ -68,10 +76,6 @@ class Event(StrEnum):
     EMERGENCY_SHUTDOWN = auto()
     UNEXPECTED_FIBSEL_REHOME = auto()
     UNCATEGORISED = auto()
-
-    @staticmethod
-    def _generate_next_value_(name, *_) -> str:
-        return name.upper()
 
 
 class PublishedMessageModel(BaseModel):
