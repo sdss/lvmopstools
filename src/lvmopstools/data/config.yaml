@@ -4,6 +4,12 @@ rabbitmq:
 
 api: http://10.8.38.21:8090/api
 
+slack:
+  token: null
+  default_channel: lvm-notifications
+  level_channels:
+    CRITICAL: lvm-alerts
+
 pubsub:
   connection_string: amqp://guest:guest@localhost:5672
   exchange_name: lvmops
