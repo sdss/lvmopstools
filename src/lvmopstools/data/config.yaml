@@ -4,6 +4,11 @@ rabbitmq:
 
 api: http://10.8.38.21:8090/api
 
+pubsub:
+  connection_string: amqp://guest:guest@localhost:5672
+  exchange_name: lvmops
+  routing_key: data
+
 devices:
   thermistors:
     host: 10.8.38.180
