@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import polars
 
-from lvmopstools.schedule import create_schedule, get_ephemeris_summary
+from lvmopstools.ephemeris import create_schedule, get_ephemeris_summary
 
 
 def test_create_schedule():

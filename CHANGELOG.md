@@ -2,6 +2,10 @@
 
 ## Next version
 
+### 💥 Breaking changes
+
+* Renamed `schedule` to `ephemeris`.
+
 ### 🚀 New
 
 * [#10](https://vscode.dev/github/sdss/lvmopstools/pull/10) Added a `pubsub` module with tools to emit and subscribe to events using RabbitMQ.
