@@ -32,6 +32,11 @@ jobs:
         with:
           enable-cache: true
 
+      - name: Setup RabbitMQ
+        continue-on-error: true
+        run: |
+          sudo apt-get install --assume-yes rabbitmq-server
+
       - name: Install dependencies
         run: |
           uv sync --no-dev --frozen --extra schedule
