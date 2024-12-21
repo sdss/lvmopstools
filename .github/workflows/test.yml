@@ -43,7 +43,7 @@ jobs:
 
       - name: Test with pytest
         run: |
-          uv pip install pytest pytest-mock pytest-asyncio pytest-cov
+          uv pip install pytest pytest-mock pytest-asyncio pytest-cov pytest-rabbitmq pytest-env
           uv run pytest
         env:
           PYTEST_RABBITMQ_CTL: '/usr/lib/rabbitmq/bin/rabbitmqctl'
