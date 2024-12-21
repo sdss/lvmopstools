@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### 🚀 New
+
+* [#10](https://vscode.dev/github/sdss/lvmopstools/pull/10) Added a `pubsub` module with tools to emit and subscribe to events using RabbitMQ.
+
+
 ## 0.4.4 - December 5, 2024
 
 ### ✨ Improved
