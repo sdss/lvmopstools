@@ -47,9 +47,8 @@ Documentation = "https://lvmopstools.readthedocs.org"
 [project.scripts]
 lvmopstools = "lvmopstools.__main__:lvmopstools"
 
-[tool.uv]
-package = true
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "ipython>=8.0.0",
     "doc8>=0.8.0",
     "pytest>=5.2.2",
