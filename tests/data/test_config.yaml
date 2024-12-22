@@ -1,3 +1,23 @@
+slack:
+  token: null
+  default_channel: lvm-notifications
+  level_channels:
+    CRITICAL: lvm-alerts
+
+notifications:
+  critical:
+    email_template: data/critical_error_email_template.html
+    email_recipients:
+      - lvm-critical@sdss.org
+    email_from: LVM Critical Alerts <lvm-critical@lco.cl>
+    email_reply_to: lvm-critical@sdss.org
+  smtp_server:
+    host: smtp.lco.cl
+    port: 25
+    tls: false
+    username: null
+    password: null
+
 pubsub:
   connection_string: amqp://guest:guest@localhost:<random-port>
   exchange_name: lvmops

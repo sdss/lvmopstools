@@ -20,6 +20,12 @@ InfluxDB
 
 .. autofunction:: lvmopstools.influxdb.query_influxdb
 
+Notifications
+-------------
+
+.. automodule:: lvmopstools.notifications
+   :members:
+
 PubSub
 ------
 

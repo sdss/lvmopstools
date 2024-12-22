@@ -10,6 +10,7 @@
 
 * [#10](https://vscode.dev/github/sdss/lvmopstools/pull/10) Added a `pubsub` module with tools to emit and subscribe to events using RabbitMQ.
 * [#11](https://vscode.dev/github/sdss/lvmopstools/pull/11) Added a `slack` module with tools to send messages to Slack.
+* [#12](https://vscode.dev/github/sdss/lvmopstools/pull/12) Added a `notifications` module.
 * Added `ephemeris.is_sun_up`.
 
 
