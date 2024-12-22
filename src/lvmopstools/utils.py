@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 import asyncio
+import time
 
 from typing import Any, Coroutine, TypeVar
 
@@ -21,6 +22,7 @@ __all__ = [
     "stop_event_loop",
     "with_timeout",
     "is_notebook",
+    "Trigger",
 ]
 
 
@@ -138,3 +140,65 @@ async def with_timeout(
     except asyncio.TimeoutError:
         if raise_on_timeout:
             raise asyncio.TimeoutError(f"Timed out after {timeout} seconds.")
+
+
+class Trigger:
+    """A trigger that can be set and reset and accepts setting thresholds.
+
+    This class is essentially just a flag that can take true/false values, but
+    triggering the true value can be delayed by time or number or triggers.
+
+    Parameters
+    ----------
+    n
+        The number of times the instance needs to be set before it is triggered.
+    delay
+        The delay in seconds before the instance is triggered. This is counted from
+        the first time the instance is set, and is reset if the instance is reset.
+        If ``n_triggers`` is greater than 1, both conditions must be met for the
+        instance to be triggered.
+
+    """
+
+    def __init__(self, n: int = 1, delay: float = 0):
+        self.n = n
+        self.delay = delay
+
+        self._triggered = False
+        self._first_trigger: float | None = None
+        self._n_sets: int = 0
+
+    def _check(self):
+        """Check the trigger conditions and update the internal state."""
+
+        now = time.time()
+        if (
+            self._n_sets >= self.n
+            and self._first_trigger is not None
+            and now - self._first_trigger >= self.delay
+        ):
+            self._triggered = True
+
+    def set(self):
+        """Sets the trigger."""
+
+        if self._triggered:
+            return
+
+        self._n_sets += 1
+        self._first_trigger = self._first_trigger or time.time()
+        self._check()
+
+    def reset(self):
+        """Resets the trigger."""
+
+        self._first_trigger = None
+        self._n_sets = 0
+        self._triggered = False
+
+    def is_set(self):
+        """Returns :obj:`True` if the trigger is set."""
+
+        self._check()
+
+        return self._triggered

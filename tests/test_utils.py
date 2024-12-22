@@ -14,7 +14,7 @@ import pytest
 import pytest_mock
 
 import lvmopstools.utils
-from lvmopstools.utils import is_notebook, with_timeout
+from lvmopstools.utils import Trigger, is_notebook, with_timeout
 
 
 async def _timeout(delay: float):
@@ -69,3 +69,50 @@ async def test_is_notebook_name_Error(mocker: pytest_mock.MockerFixture):
     )
 
     assert not is_notebook()
+
+
+async def test_trigger_n_sets():
+    trigger = Trigger(n=3)
+
+    assert not trigger.is_set()
+
+    trigger.set()
+    assert not trigger.is_set()
+
+    trigger.set()
+    assert not trigger.is_set()
+
+    trigger.set()
+    assert trigger.is_set()
+
+
+async def test_trigger_n_sets_delay():
+    trigger = Trigger(n=2, delay=0.25)
+
+    trigger.set()
+    assert not trigger.is_set()
+
+    trigger.set()
+    assert not trigger.is_set()
+
+    await asyncio.sleep(0.3)
+    assert trigger.is_set()
+
+    trigger.set()
+    assert trigger.is_set()
+
+
+async def test_trigger_reset():
+    trigger = Trigger(n=2)
+
+    trigger.set()
+    trigger.set()
+    assert trigger.is_set()
+
+    trigger.reset()
+    assert not trigger.is_set()
+
+    trigger.set()
+    trigger.reset()
+    trigger.set()
+    assert not trigger.is_set()

@@ -54,6 +54,17 @@ Socket
 .. autoclass:: lvmopstools.socket.AsyncSocketHandler
    :members:
 
+Utils
+-----
+
+.. autofunction:: lvmopstools.utils.get_amqp_client
+.. autofunction:: lvmopstools.utils.get_exception_data
+.. autofunction:: lvmopstools.utils.stop_event_loop
+.. autofunction:: lvmopstools.utils.with_timeout
+.. autofunction:: lvmopstools.utils.is_notebook
+.. autoclass:: lvmopstools.utils.Trigger
+
+
 Weather
 -------
 
