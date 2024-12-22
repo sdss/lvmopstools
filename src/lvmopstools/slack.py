@@ -20,7 +20,7 @@ from slack_sdk.web.async_client import AsyncWebClient
 from lvmopstools import config
 
 
-__all__ = ["post_message", "get_user_id"]
+__all__ = ["post_message", "get_user_id", "get_user_list"]
 
 
 ICONS = {
