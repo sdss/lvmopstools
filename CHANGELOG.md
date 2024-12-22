@@ -8,6 +8,7 @@
 
 ### ✨ Improved
 
+* Added a more general `send_email` function.
 * Allow passing subject and other parameters to `send_critical_error_email`.
 
 

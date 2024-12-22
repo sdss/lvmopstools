@@ -23,7 +23,12 @@ from lvmopstools import config
 from lvmopstools.slack import post_message as post_to_slack
 
 
-__all__ = ["send_notification", "send_critical_error_email", "NotificationLevel"]
+__all__ = [
+    "send_notification",
+    "send_email",
+    "send_critical_error_email",
+    "NotificationLevel",
+]
 
 
 class NotificationLevel(enum.Enum):
@@ -122,11 +127,88 @@ async def send_notification(
     return message
 
 
+def send_email(
+    message: str,
+    subject: str,
+    recipients: Sequence[str],
+    from_address: str,
+    *,
+    html_message: str | None = None,
+    email_reply_to: str | None = None,
+    host: str | None = None,
+    port: int | None = None,
+    tls: bool | None = None,
+    username: str | None = None,
+    password: str | None = None,
+):
+    """Sends an email.
+
+    Parameters
+    ----------
+    message
+        The plain text message to send.
+    subject
+        The subject of the email.
+    recipients
+        The recipients of the email.
+    from_address
+        The email address from which the email is sent.
+    html_message
+        The HTML message to send.
+    email_reply_to
+        The email address to which to reply. Defaults to the sender.
+    host
+        The SMTP server host.
+    port
+        The SMTP server port.
+    tls
+        Whether to use TLS for authentication.
+    username
+        The SMTP server username.
+    password
+        The SMTP server password.
+
+    """
+
+    email_reply_to = email_reply_to or from_address
+
+    msg = MIMEMultipart("alternative" if html_message else "mixed")
+    msg["Subject"] = subject
+    msg["From"] = from_address
+    msg["To"] = ", ".join(recipients)
+    msg["Reply-To"] = email_reply_to
+
+    msg.attach(MIMEText(message, "plain"))
+
+    if html_message:
+        html = MIMEText(html_message, "html")
+        msg.attach(html)
+
+    smtp_host = host or config["notifications.smtp_server.host"]
+    smtp_port = port or config["notifications.smtp_server.port"]
+    smpt_tls = tls if tls is not None else config["notifications.smtp_server.tls"]
+    smtp_username = username or config["notifications.smtp_server.username"]
+    smtp_password = password or config["notifications.smtp_server.password"]
+
+    with smtplib.SMTP(host=smtp_host, port=smtp_port) as smtp:
+        if smpt_tls is True or (smpt_tls is None and smtp_port == 587):
+            # See https://gist.github.com/jamescalam/93d915e4de12e7f09834ae73bdf37299
+            smtp.ehlo()
+            smtp.starttls()
+
+            if smtp_password is not None and smtp_password is not None:
+                smtp.login(smtp_username, smtp_password)
+            else:
+                raise ValueError("username and password must be provided for TLS.")
+        smtp.sendmail(from_address, recipients, msg.as_string())
+
+
 def send_critical_error_email(
     message: str,
     subject: str = "LVM Critical Alert",
     recipients: Sequence[str] | None = None,
     from_address: str | None = None,
+    email_reply_to: str | None = None,
     host: str | None = None,
     port: int | None = None,
     tls: bool | None = None,
@@ -174,17 +256,11 @@ def send_critical_error_email(
 
     recipients = recipients or config["notifications.critical.email_recipients"]
     from_address = from_address or config["notifications.critical.email_from"]
+    email_reply_to = email_reply_to or config["notifications.critical.email_reply_to"]
 
     assert from_address is not None, "from_address must be provided."
     assert recipients is not None, "recipients must be provided."
-
-    email_reply_to = config["notifications.critical.email_reply_to"]
-
-    msg = MIMEMultipart("alternative" if html_message else "mixed")
-    msg["Subject"] = subject
-    msg["From"] = from_address
-    msg["To"] = ", ".join(recipients)
-    msg["Reply-To"] = email_reply_to
+    assert email_reply_to is not None, "email_reply_to must be provided."
 
     plaintext_email = f"""A critical alert was raised in the LVM system.
 
@@ -193,25 +269,17 @@ The error message is shown below:
 {message}
 
 """
-    msg.attach(MIMEText(plaintext_email, "plain"))
 
-    html = MIMEText(html_message, "html")
-    msg.attach(html)
-
-    smtp_host = host or config["notifications.smtp_server.host"]
-    smtp_port = port or config["notifications.smtp_server.port"]
-    smpt_tls = tls if tls is not None else config["notifications.smtp_server.tls"]
-    smtp_username = username or config["notifications.smtp_server.username"]
-    smtp_password = password or config["notifications.smtp_server.password"]
-
-    with smtplib.SMTP(host=smtp_host, port=smtp_port) as smtp:
-        if smpt_tls is True or (smpt_tls is None and smtp_port == 587):
-            # See https://gist.github.com/jamescalam/93d915e4de12e7f09834ae73bdf37299
-            smtp.ehlo()
-            smtp.starttls()
-
-            if smtp_password is not None and smtp_password is not None:
-                smtp.login(smtp_username, smtp_password)
-            else:
-                raise ValueError("username and password must be provided for TLS.")
-        smtp.sendmail(from_address, recipients, msg.as_string())
+    send_email(
+        plaintext_email,
+        subject,
+        recipients,
+        from_address,
+        html_message=html_message,
+        email_reply_to=email_reply_to,
+        host=host,
+        port=port,
+        tls=tls,
+        username=username,
+        password=password,
+    )
