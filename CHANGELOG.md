@@ -2,6 +2,11 @@
 
 ## Next version
 
+### 💥 Breaking changes
+
+* Moved `lvmopstools.slack` dependencies to `slack` extra.
+* Renamed `schedule` extra to `ephemeris`.
+
 ### 🚀 New
 
 * Added `Trigger` class.
