@@ -128,3 +128,6 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.sdist]
 only-include = ["src/lvmopstools"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/lvmopstools"]

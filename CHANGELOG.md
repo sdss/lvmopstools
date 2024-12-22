@@ -19,6 +19,7 @@
 ### ⚙️ Engineering
 
 * Updated management of dev dependencies.
+* Add sections `tool.hatch.build.targets.sdist` and `tool.hatch.build.wheel` to `pyproject.toml`.
 
 
 ## 0.5.0 - December 21, 2024
