@@ -12,7 +12,7 @@ jobs:
   test:
     name: Test
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     strategy:
       fail-fast: false
@@ -39,7 +39,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv sync --no-dev --frozen --extra ephemeris slack
+          uv sync --no-dev --frozen --extra ephemeris --extra slack
 
       - name: Test with pytest
         run: |
