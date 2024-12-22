@@ -124,6 +124,9 @@ async def send_notification(
 
 def send_critical_error_email(
     message: str,
+    subject: str = "LVM Critical Alert",
+    recipients: Sequence[str] | None = None,
+    from_address: str | None = None,
     host: str | None = None,
     port: int | None = None,
     tls: bool | None = None,
@@ -136,6 +139,13 @@ def send_critical_error_email(
     ----------
     message
         The message to send.
+    subject
+        The subject of the email.
+    recipients
+        The recipients of the email. A list of email addresses or :obj:`None` to
+        use the default recipients.
+    from_address
+        The email address from which the email is sent.
     host
         The SMTP server host.
     port
@@ -162,13 +172,16 @@ def send_critical_error_email(
 
     html_message = html_template.render(message=message.strip())
 
-    recipients = config["notifications.critical.email_recipients"]
-    from_address = config["notifications.critical.email_from"]
+    recipients = recipients or config["notifications.critical.email_recipients"]
+    from_address = from_address or config["notifications.critical.email_from"]
+
+    assert from_address is not None, "from_address must be provided."
+    assert recipients is not None, "recipients must be provided."
 
     email_reply_to = config["notifications.critical.email_reply_to"]
 
     msg = MIMEMultipart("alternative" if html_message else "mixed")
-    msg["Subject"] = "LVM Critical Alert"
+    msg["Subject"] = subject
     msg["From"] = from_address
     msg["To"] = ", ".join(recipients)
     msg["Reply-To"] = email_reply_to

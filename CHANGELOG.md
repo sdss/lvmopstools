@@ -6,6 +6,10 @@
 
 * Added `Trigger` class.
 
+### ✨ Improved
+
+* Allow passing subject and other parameters to `send_critical_error_email`.
+
 
 ## 0.5.0 - December 21, 2024
 
