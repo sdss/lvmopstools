@@ -91,20 +91,23 @@ async def send_notification(
             print(f"Error sending critical error email: {ee}", file=sys.stderr)
 
     if slack:
+        slack_channels = slack_channels or config["slack.default_channels"]
+
         channels: set[str] = set()
 
         if isinstance(slack_channels, str):
             channels.add(slack_channels)
         elif isinstance(slack_channels, Sequence):
             channels.update(slack_channels)
-        else:
-            channels.add(config["slack.default_channel"])
 
         # We send the message to the default channel plus any other channel that
         # matches the level of the notification.
         level_channels = cast(dict[str, str], config["slack.level_channels"])
         if level.value in level_channels:
-            channels.add(level_channels[level.value])
+            if isinstance(level_channels[level.value], str):
+                channels.add(level_channels[level.value])
+            else:
+                channels.update(level_channels[level.value])
 
         # Send Slack message(s)
         for channel in channels:

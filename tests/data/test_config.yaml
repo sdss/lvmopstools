@@ -1,8 +1,10 @@
 slack:
   token: null
-  default_channel: lvm-notifications
+  default_channels:
+    - lvm-notifications
   level_channels:
-    CRITICAL: lvm-alerts
+    CRITICAL:
+      - lvm-alerts
 
 notifications:
   critical:
