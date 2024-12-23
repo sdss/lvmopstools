@@ -7,13 +7,13 @@
       }
 
       div.header {
-        width: 100%;
         display: flex;
         align-items: flex-start;
+        padding: 0px 20px;
       }
 
       img.header-image {
-        padding: 4px;
+        padding: 4px 0px;
         width: 100px;
       }
 
@@ -64,6 +64,11 @@
       pre code {
         padding: 10px;
       }
+
+      div.footnote {
+        font-size: 9pt;
+        padding: 0px 5px;
+      }
     </style>
   </head>
 
@@ -87,7 +92,13 @@
 
     <div style="padding: 10px 0px;">
       <pre><code>{{- message }}</code></pre>
-    </dic>
+    </div>
+
+    <hr style="width: 100%; margin-top: 50px" />
+
+    <div class="footnote">
+      This email may be sent from a "do not reply" address. Replying to it should email <code>lvm-critical@sdss.org</code>. Please confirm that is the case before replying.
+    </div>
 
   </body>
 

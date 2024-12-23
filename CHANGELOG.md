@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### ✨ Improved
+
+* Add footnote to the critical email template.
+
+
 ## 0.5.1 - December 22, 2024
 
 ### 💥 Breaking changes
