@@ -39,7 +39,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv sync --no-dev --frozen --extra ephemeris --extra slack
+          uv sync --no-dev --frozen --extra all
 
       - name: Test with pytest
         run: |

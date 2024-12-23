@@ -37,7 +37,9 @@ async def query_influxdb(
     """Runs a query in InfluxDB and returns a Polars dataframe."""
 
     if not InfluxDBClientAsync or not MissingPivotFunction:
-        raise ImportError("influxdb-client is not installed. Use the influxdb extra.")
+        raise ImportError(
+            "influxdb-client is not installed. Install the influxdb or all extras."
+        )
 
     warnings.simplefilter("ignore", MissingPivotFunction)  # noqa: F821
 

@@ -12,15 +12,21 @@ import pathlib
 
 from typing import TypedDict
 
-import astroplan
 import numpy
 import polars
-from astropy import units as uu
-from astropy.time import Time
 from cachetools import TTLCache, cached
 
 from sdsstools import get_sjd
 
+
+try:
+    import astroplan
+    from astropy import units as uu
+    from astropy.time import Time
+except ImportError:
+    uu = None
+    Time = None
+    astroplan = None
 
 EPHEMERIS_FILE = pathlib.Path(__file__).parent / "data/ephemeris_59945_62866.parquet"
 
@@ -34,6 +40,11 @@ def get_ephemeris_data(filename: pathlib.Path | str) -> polars.DataFrame:
 
 def sjd_ephemeris(sjd: int, twilight_horizon: float = -15) -> polars.DataFrame:
     """Returns the ephemeris for a given SJD."""
+
+    if not astroplan or not uu or not Time:
+        raise ImportError(
+            "astropy and astroplan are required. Install the ephemeris extra."
+        )
 
     observer = astroplan.Observer.at_site("Las Campanas Observatory")
     observer.pressure = 0.76 * uu.bar
@@ -150,6 +161,11 @@ class EphemerisDict(TypedDict):
 
 def get_ephemeris_summary(sjd: int | None = None) -> EphemerisDict:
     """Returns a summary of the ephemeris for a given SJD."""
+
+    if not uu or not Time:
+        raise ImportError(
+            "astropy and astroplan are required. Install the ephemeris or all extras."
+        )
 
     sjd = sjd or get_sjd("LCO")
 

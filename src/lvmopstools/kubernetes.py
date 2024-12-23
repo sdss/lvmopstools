@@ -30,7 +30,9 @@ class Kubernetes:
 
     def __init__(self, deployments_path: str | Path | None = None):
         if kubernetes is None:
-            raise ImportError("kubernetes is not installed. Use the kubernetes extra.")
+            raise ImportError(
+                "kubernetes is not installed. Install the kubernetes or all extras."
+            )
 
         self.is_notebook = is_notebook()
 

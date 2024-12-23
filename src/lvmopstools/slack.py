@@ -14,8 +14,6 @@ import re
 from typing import Sequence
 
 from aiocache import cached
-from slack_sdk.errors import SlackApiError
-from slack_sdk.web.async_client import AsyncWebClient
 
 from lvmopstools import config
 
@@ -30,6 +28,13 @@ ICONS = {
 
 def get_api_client(token: str | None = None):
     """Gets a Slack API client."""
+
+    try:
+        from slack_sdk.web.async_client import AsyncWebClient
+    except ImportError:
+        raise ImportError(
+            "slack-sdk is not installed. Install the slack or all extras."
+        )
 
     token = token or config["slack.token"] or os.environ["SLACK_API_TOKEN"]
 
@@ -91,6 +96,11 @@ async def post_message(
 
     """
 
+    try:
+        from slack_sdk.errors import SlackApiError
+    except ImportError:
+        SlackApiError = None
+
     if text is None and blocks is None:
         raise ValueError("Must specify either text or blocks.")
 
@@ -104,6 +114,7 @@ async def post_message(
         icon_url = ICONS[username.lower()]
 
     client = get_api_client()
+    assert SlackApiError is not None
 
     try:
         text = await format_mentions(text, mentions)
@@ -127,7 +138,13 @@ async def get_user_list():
 
     """
 
+    try:
+        from slack_sdk.errors import SlackApiError
+    except ImportError:
+        SlackApiError = None
+
     client = get_api_client()
+    assert SlackApiError is not None
 
     try:
         users_list = await client.users_list()

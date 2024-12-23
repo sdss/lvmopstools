@@ -950,12 +950,14 @@ wheels = [
 
 [[package]]
 name = "lvmopstools"
-version = "0.5.2a0"
+version = "0.5.2"
 source = { editable = "." }
 dependencies = [
     { name = "aio-pika" },
+    { name = "aiocache" },
     { name = "aiohttp" },
     { name = "asyncudp" },
+    { name = "cachetools" },
     { name = "httpx" },
     { name = "jinja2" },
     { name = "polars" },
@@ -968,6 +970,14 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
+all = [
+    { name = "astroplan" },
+    { name = "astropy", version = "6.1.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "astropy", version = "7.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "influxdb-client" },
+    { name = "kubernetes" },
+    { name = "slack-sdk" },
+]
 ds9 = [
     { name = "pyds9" },
 ]
@@ -975,7 +985,6 @@ ephemeris = [
     { name = "astroplan" },
     { name = "astropy", version = "6.1.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "astropy", version = "7.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "cachetools" },
 ]
 influxdb = [
     { name = "influxdb-client" },
@@ -984,7 +993,6 @@ kubernetes = [
     { name = "kubernetes" },
 ]
 slack = [
-    { name = "aiocache" },
     { name = "slack-sdk" },
 ]
 
@@ -1017,23 +1025,29 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "aio-pika", specifier = ">=9.5.3" },
-    { name = "aiocache", marker = "extra == 'slack'", specifier = ">=0.12.3" },
+    { name = "aiocache", specifier = ">=0.12.3" },
     { name = "aiohttp", specifier = ">=3.11.11" },
+    { name = "astroplan", marker = "extra == 'all'", specifier = ">=0.10.1" },
     { name = "astroplan", marker = "extra == 'ephemeris'", specifier = ">=0.10.1" },
+    { name = "astropy", marker = "python_full_version >= '3.11' and extra == 'all'", specifier = ">=7.0.0" },
     { name = "astropy", marker = "python_full_version >= '3.11' and extra == 'ephemeris'", specifier = ">=7.0.0" },
+    { name = "astropy", marker = "python_full_version < '3.11' and extra == 'all'", specifier = ">=6.0.0" },
     { name = "astropy", marker = "python_full_version < '3.11' and extra == 'ephemeris'", specifier = ">=6.0.0" },
     { name = "asyncudp", specifier = ">=0.11.0" },
-    { name = "cachetools", marker = "extra == 'ephemeris'", specifier = ">=5.5.0" },
+    { name = "cachetools", specifier = ">=5.5.0" },
     { name = "httpx", specifier = ">=0.27.2" },
+    { name = "influxdb-client", marker = "extra == 'all'", specifier = ">=1.47.0" },
     { name = "influxdb-client", marker = "extra == 'influxdb'", specifier = ">=1.47.0" },
     { name = "jinja2", specifier = ">=3.1.5" },
+    { name = "kubernetes", marker = "extra == 'all'", specifier = ">=31.0.0" },
     { name = "kubernetes", marker = "extra == 'kubernetes'", specifier = ">=31.0.0" },
     { name = "polars", specifier = ">=1.13.0" },
     { name = "pydantic", specifier = ">=2.10.3" },
     { name = "pyds9", marker = "extra == 'ds9'", specifier = ">=1.8.1" },
-    { name = "sdss-clu", specifier = ">=2.2.7" },
+    { name = "sdss-clu", specifier = ">=2.4.0" },
     { name = "sdss-drift", specifier = ">=1.2.0" },
     { name = "sdsstools", specifier = ">=1.8.2" },
+    { name = "slack-sdk", marker = "extra == 'all'", specifier = ">=3.34.0" },
     { name = "slack-sdk", marker = "extra == 'slack'", specifier = ">=3.34.0" },
     { name = "strenum", specifier = ">=0.4.15" },
     { name = "typing-extensions", specifier = ">=4.12.2" },
@@ -2131,7 +2145,7 @@ wheels = [
 
 [[package]]
 name = "sdss-clu"
-version = "2.3.1"
+version = "2.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aio-pika" },
@@ -2141,12 +2155,13 @@ dependencies = [
     { name = "click-default-group" },
     { name = "jsonschema" },
     { name = "prompt-toolkit" },
+    { name = "pydantic" },
     { name = "sdsstools" },
     { name = "unclick" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/00/ed/69a64f393e8a123946aaa03c80deb69f3640a727a0beccee6bf2fde320e3/sdss_clu-2.3.1.tar.gz", hash = "sha256:157b5e0ec6a0d456603d59b0c718008e46bb109b455593725a7da7888f8bc984", size = 122771 }
+sdist = { url = "https://files.pythonhosted.org/packages/a7/ff/ee9b933617b4660111cb178fae1c7f87ae6d1da28971ab307d2bec84015b/sdss_clu-2.4.0.tar.gz", hash = "sha256:3895c1606b28eee5a830bda30f1abcae4bca83a36af4b82bd43cde6a26d3f777", size = 122983 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a4/8a/f65351c9f037e3f7441bd8e8dd7169bb2ebe5b3dbd7c3279d32b9bc62686/sdss_clu-2.3.1-py3-none-any.whl", hash = "sha256:c5125fcce0a09b97e661e68a836a61056908834eeb0beb2b919ae0745848f555", size = 142249 },
+    { url = "https://files.pythonhosted.org/packages/7e/0a/df9de24104ec253e75f2a5e3e46f8932a55b7b615444fbd17a509434e361/sdss_clu-2.4.0-py3-none-any.whl", hash = "sha256:9abbeb922a1f3a15e4f81fc229db3a44497b0d492782ee5547d714014ce41595", size = 142434 },
 ]
 
 [[package]]
