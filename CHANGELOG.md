@@ -6,6 +6,10 @@
 
 * Add footnote to the critical email template.
 
+### 🔧 Fixed
+
+* Fix extras dependencies and add an `all` extra with all the extra dependencies except `pyds9`.
+
 
 ## 0.5.1 - December 22, 2024
 
