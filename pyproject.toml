@@ -1,6 +1,6 @@
 [project]
 name = "lvmopstools"
-version = "0.5.3a0"
+version = "0.5.3"
 description = "LVM tools and utilities for operations"
 authors = [
     { name = "José Sánchez-Gallego", email = "gallegoj@uw.edu" }
@@ -10,8 +10,8 @@ readme = "README.md"
 requires-python = ">=3.10,<4"
 
 dependencies = [
-    "sdsstools>=1.8.2",
-    "sdss-clu>=2.4.0",
+    "sdsstools>=1.9.1",
+    "sdss-clu>=2.4.2",
     "sdss-drift>=1.2.0",
     "asyncudp>=0.11.0",
     "httpx>=0.27.2",
