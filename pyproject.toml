@@ -29,7 +29,7 @@ dependencies = [
 [project.optional-dependencies]
 ds9 = [ "pyds9>=1.8.1" ]
 kubernetes = [ "kubernetes>=31.0.0" ]
-influxdb = [ "influxdb-client>=1.47.0" ]
+influxdb = [ "influxdb-client[async]>=1.47.0" ]
 ephemeris = [
     "astropy>=6.0.0; python_version<'3.11'",
     "astropy>=7.0.0; python_version>='3.11'",

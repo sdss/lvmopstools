@@ -1008,7 +1008,7 @@ ephemeris = [
     { name = "astropy", version = "7.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
 ]
 influxdb = [
-    { name = "influxdb-client" },
+    { name = "influxdb-client", extra = ["async"] },
 ]
 kubernetes = [
     { name = "kubernetes" },
@@ -1057,8 +1057,8 @@ requires-dist = [
     { name = "asyncudp", specifier = ">=0.11.0" },
     { name = "cachetools", specifier = ">=5.5.0" },
     { name = "httpx", specifier = ">=0.27.2" },
-    { name = "influxdb-client", marker = "extra == 'influxdb'", specifier = ">=1.47.0" },
     { name = "influxdb-client", extras = ["async"], marker = "extra == 'all'", specifier = ">=1.47.0" },
+    { name = "influxdb-client", extras = ["async"], marker = "extra == 'influxdb'", specifier = ">=1.47.0" },
     { name = "jinja2", specifier = ">=3.1.5" },
     { name = "kubernetes", marker = "extra == 'all'", specifier = ">=31.0.0" },
     { name = "kubernetes", marker = "extra == 'kubernetes'", specifier = ">=31.0.0" },
