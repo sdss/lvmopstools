@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.4 - December 27, 2024
+
+### 🔧 Fixed
+
+* Install `influxdb-client` with the `async` extra.
+
+
 ## 0.5.3 - December 27, 2024
 
 ### 🔧 Fixed

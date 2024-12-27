@@ -40,7 +40,7 @@ slack = [
 ]
 all = [
     "kubernetes>=31.0.0",
-    "influxdb-client>=1.47.0",
+    "influxdb-client[async]>=1.47.0",
     "astropy>=6.0.0; python_version<'3.11'",
     "astropy>=7.0.0; python_version>='3.11'",
     "astroplan>=0.10.1",

@@ -29,6 +29,29 @@ wheels = [
 ]
 
 [[package]]
+name = "aiocsv"
+version = "1.3.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/33/78/bd4a85d195e57e72837415ef81d26ce6db6fdf185dce8d4f6a7c099ed4af/aiocsv-1.3.2.tar.gz", hash = "sha256:806d93465c7808d58d3ff0d2bba270fb4d04b934be6a1e95d0834c50a510910e", size = 24837 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/5b/ac/f16d8ac8f340f84102294837cbf1ee8a30a211270f49f91ccc084f0bea93/aiocsv-1.3.2-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:f1996ac960c196aecc7d22e701c273a2676d13bf25575af78d4e515fc724ef20", size = 26421 },
+    { url = "https://files.pythonhosted.org/packages/7d/d5/616a3d7b07558ee1010cf233784bf1a6844b0664e92a489a380b887ff773/aiocsv-1.3.2-cp310-cp310-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:bdd688dbc1723f2b3a433e42041ceb9c9a8fe70f547d35b2da4ea31e4c78efc5", size = 47958 },
+    { url = "https://files.pythonhosted.org/packages/66/1b/e03e1469ff228ac0a2c852d6fadfeebacd347f11f7aedd5818f7d42e0ba1/aiocsv-1.3.2-cp310-cp310-musllinux_1_1_x86_64.whl", hash = "sha256:2f921828e386bb6945ed7d268e1524349ea506974ae35b9772542714f0ef3efd", size = 52246 },
+    { url = "https://files.pythonhosted.org/packages/ac/69/d6da552b7fe5d2908c9bfbcc62c100cf19eaaf711a213cb9f84448569765/aiocsv-1.3.2-cp310-cp310-win_amd64.whl", hash = "sha256:198c905ec29897c347bf9b18eb410af13d7ac94a03d4b673e64eaa5f4557c913", size = 29080 },
+    { url = "https://files.pythonhosted.org/packages/d6/b3/548e5b377f65d3ae02c0674a54de76c150c8d050f4fe7b0e43be866ba1be/aiocsv-1.3.2-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:7c25ad8afbf79d28ec3320e608c7f38d3eff93e96ebbbd2430ae8fa0f6e7631b", size = 26420 },
+    { url = "https://files.pythonhosted.org/packages/0d/bc/2659b85488b520d66b31ac83f42f7493653f61a4941b4f0807f3f73bd3e0/aiocsv-1.3.2-cp311-cp311-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:4004569bff39cb839a335b8f673a6496fd5b0b6e074c7adb7aee4a0c8379ea22", size = 49433 },
+    { url = "https://files.pythonhosted.org/packages/41/c2/0f7d38cf5411350b8448f7c5c77f65247224fa96edfc7a5e997deb5fc96d/aiocsv-1.3.2-cp311-cp311-musllinux_1_1_x86_64.whl", hash = "sha256:e9c98f8d760add0b52274523baa4b81dde4a3c96f79222d3d4d6965bac9cdcbd", size = 54346 },
+    { url = "https://files.pythonhosted.org/packages/33/e6/5e661bc89cd094a7d92f5883c16f9651a52c4a8f38623c8de1851d7ffa84/aiocsv-1.3.2-cp311-cp311-win_amd64.whl", hash = "sha256:9edb342b0d7dba94d8976f46ba5814b8d8704d67a45e1b8a6579ab0ba04309e7", size = 29090 },
+    { url = "https://files.pythonhosted.org/packages/52/b5/48e8b825d8ec9ffbb47ebbc381702d5dfb59ef01ad00174bf43123b860cf/aiocsv-1.3.2-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:db943a463cb6828ba81bd7c083c6dd4c96edac4880b8638af81798d694405e26", size = 26497 },
+    { url = "https://files.pythonhosted.org/packages/94/6f/cb2d7b751a03433a30e7a645f0b3a126f5f2ecb0947c3da5a04496c06767/aiocsv-1.3.2-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:10780033a1ed3da825f2256449d177b7106b3c5a2d64bd683eab37f1fdee1e36", size = 51459 },
+    { url = "https://files.pythonhosted.org/packages/c2/19/67edf04b47168a2639d73ebaae25f2459d7284d10a5e7a2fef72a69bb31e/aiocsv-1.3.2-cp312-cp312-musllinux_1_1_x86_64.whl", hash = "sha256:8c7aee34ceff4eaa654f01acbdba648297f5f9532dc7a23fac62defec28e0fe5", size = 55921 },
+    { url = "https://files.pythonhosted.org/packages/13/39/ee5645807a947736c87ab7c0dfcdbceb7d7f8d1d31cb7d52992cbd5d6d44/aiocsv-1.3.2-cp312-cp312-win_amd64.whl", hash = "sha256:59b0ea2d9e73539d4c1276467c4457acafa995717ea1b5340f3737f2cde2f71a", size = 29137 },
+]
+
+[[package]]
 name = "aiohappyeyeballs"
 version = "2.4.4"
 source = { registry = "https://pypi.org/simple" }
@@ -804,6 +827,12 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/5c/b3/1edc89584b8d1bc5226cf508b67ab64da3ba83041cab348861e6f4392326/influxdb_client-1.48.0-py3-none-any.whl", hash = "sha256:410db15db761df7ea98adb333c7a03f05bcc2ceef4830cefb7071b888be2b827", size = 746177 },
 ]
 
+[package.optional-dependencies]
+async = [
+    { name = "aiocsv" },
+    { name = "aiohttp" },
+]
+
 [[package]]
 name = "iniconfig"
 version = "2.0.0"
@@ -966,7 +995,7 @@ all = [
     { name = "astroplan" },
     { name = "astropy", version = "6.1.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "astropy", version = "7.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "influxdb-client" },
+    { name = "influxdb-client", extra = ["async"] },
     { name = "kubernetes" },
     { name = "slack-sdk" },
 ]
@@ -1028,8 +1057,8 @@ requires-dist = [
     { name = "asyncudp", specifier = ">=0.11.0" },
     { name = "cachetools", specifier = ">=5.5.0" },
     { name = "httpx", specifier = ">=0.27.2" },
-    { name = "influxdb-client", marker = "extra == 'all'", specifier = ">=1.47.0" },
     { name = "influxdb-client", marker = "extra == 'influxdb'", specifier = ">=1.47.0" },
+    { name = "influxdb-client", extras = ["async"], marker = "extra == 'all'", specifier = ">=1.47.0" },
     { name = "jinja2", specifier = ">=3.1.5" },
     { name = "kubernetes", marker = "extra == 'all'", specifier = ">=31.0.0" },
     { name = "kubernetes", marker = "extra == 'kubernetes'", specifier = ">=31.0.0" },
