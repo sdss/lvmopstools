@@ -10,11 +10,10 @@ from __future__ import annotations
 
 import pathlib
 
-from typing import TypedDict
-
 import numpy
 import polars
 from cachetools import TTLCache, cached
+from typing_extensions import TypedDict
 
 from sdsstools import get_sjd
 

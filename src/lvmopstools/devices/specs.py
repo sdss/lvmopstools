@@ -8,7 +8,9 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal, TypedDict, cast, get_args
+from typing import TYPE_CHECKING, Literal, cast, get_args
+
+from typing_extensions import TypedDict
 
 from sdsstools.utils import GatheringTaskGroup
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### 🔧 Fixed
+
+* Import `TypedDict` from `typing_extensions` instead of `typing` to avoid issues with Pydantic in <3.12.
+
+
 ## 0.5.2 - December 23, 2024
 
 ### ✨ Improved

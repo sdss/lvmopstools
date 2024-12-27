@@ -11,7 +11,9 @@ from __future__ import annotations
 import asyncio
 import warnings
 
-from typing import TypedDict, cast
+from typing import cast
+
+from typing_extensions import TypedDict
 
 from drift import Drift
 from drift.convert import data_to_float32
