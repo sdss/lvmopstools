@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### ⚙️ Engineering
+
+* Improved typing of `with_timeout` function.
+
+
 ## 0.5.5 - December 27, 2024
 
 ### 🔧 Fixed

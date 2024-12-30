@@ -107,7 +107,7 @@ T = TypeVar("T", bound=Any)
 
 
 async def with_timeout(
-    coro: Coroutine[Any, Any, T],
+    coro: asyncio.Future[T] | Coroutine[Any, Any, T],
     timeout: float | None,
     raise_on_timeout: bool = True,
 ) -> T | None:
