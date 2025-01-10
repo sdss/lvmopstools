@@ -53,10 +53,10 @@ devices:
           signal_address: 0
           on_off_address: 2020
         b1:
-          signal_address: 2
+          signal_address: 4
           on_off_address: 2021
         r1:
-          signal_address: 4
+          signal_address: 8
           on_off_address: 2022
     - host: 10.8.38.155
       port: 502
@@ -65,10 +65,10 @@ devices:
           signal_address: 0
           on_off_address: 2020
         b2:
-          signal_address: 2
+          signal_address: 4
           on_off_address: 2021
         r2:
-          signal_address: 4
+          signal_address: 8
           on_off_address: 2022
     - host: 10.8.38.156
       port: 502
@@ -77,8 +77,8 @@ devices:
           signal_address: 0
           on_off_address: 2020
         b3:
-          signal_address: 2
+          signal_address: 4
           on_off_address: 2021
         r3:
-          signal_address: 4
+          signal_address: 8
           on_off_address: 2022

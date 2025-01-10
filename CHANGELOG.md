@@ -2,6 +2,10 @@
 
 ## Next version
 
+### 🔧 Fixed
+
+* Fix the signal registers to read ion pump voltages.
+
 ### ⚙️ Engineering
 
 * Improved typing of `with_timeout` function.
