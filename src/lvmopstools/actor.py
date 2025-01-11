@@ -24,7 +24,7 @@ from clu.command import Command
 from clu.parsers.click import CluCommand
 from sdsstools import cancel_task
 
-from lvmopstools.utils import get_exception_data, stop_event_loop
+from lvmopstools.utils import get_exception_data
 
 
 __all__ = [
@@ -344,7 +344,6 @@ class LVMActor(AMQPActor):
         await asyncio.sleep(1)
 
         if mode == "exit":
-            await stop_event_loop()
             sys.exit(1)
         elif mode == "reload":
             try:

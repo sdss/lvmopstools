@@ -5,6 +5,7 @@
 ### 🔧 Fixed
 
 * Fix the signal registers to read ion pump voltages.
+* Do not stop event loop in `LVMActor` when restarting in mode `exit`.
 
 ### ⚙️ Engineering
 
