@@ -16,7 +16,6 @@ from pytest_mock import MockerFixture
 
 from sdsstools import cancel_task
 
-import lvmopstools.actor
 from lvmopstools.actor import (
     ActorState,
     CheckError,
@@ -134,7 +133,6 @@ async def test_actor_restart(lvm_actor: LVMActor, mocker: MockerFixture):
 
 
 async def test_actor_restart_exit(lvm_actor: LVMActor, mocker: MockerFixture):
-    mocker.patch.object(lvmopstools.actor, "stop_event_loop")
     mock_exit = mocker.patch.object(sys, "exit")
 
     await lvm_actor.restart(mode="exit")
