@@ -271,7 +271,7 @@ async def spectrograph_mechanics(
 
             if ieb_cmd.status.did_fail:
                 if not ignore_errors:
-                    raise ValueError(f"Failed retrieving {device } status from IEB.")
+                    raise ValueError(f"Failed retrieving {device} status from IEB.")
 
             if device == "shutter":
                 key = f"{spec}_shutter"
