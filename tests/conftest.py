@@ -20,7 +20,7 @@ from pymodbus.datastore import (
     ModbusServerContext,
     ModbusSlaveContext,
 )
-from pymodbus.server.async_io import ServerAsyncStop, StartAsyncTcpServer
+from pymodbus.server import ServerAsyncStop, StartAsyncTcpServer
 from pytest_mock import MockerFixture
 from pytest_rabbitmq.factories import rabbitmq, rabbitmq_proc
 
