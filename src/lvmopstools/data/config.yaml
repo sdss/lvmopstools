@@ -46,7 +46,7 @@ devices:
       z2: 15
 
   ion:
-    - host: 10.8.38.157
+    - host: 10.8.38.155
       port: 502
       cameras:
         z1:
@@ -58,7 +58,7 @@ devices:
         r1:
           signal_address: 8
           on_off_address: 2022
-    - host: 10.8.38.155
+    - host: 10.8.38.156
       port: 502
       cameras:
         z2:
@@ -70,7 +70,7 @@ devices:
         r2:
           signal_address: 8
           on_off_address: 2022
-    - host: 10.8.38.156
+    - host: 10.8.38.157
       port: 502
       cameras:
         z3:
