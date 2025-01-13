@@ -8,13 +8,18 @@
 
 from __future__ import annotations
 
+import asyncio
 from unittest.mock import MagicMock
 
-from typing import Any, Awaitable, Callable, Literal, overload
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, Literal, overload
 
 import pytest
 
 from lvmopstools import Retrier
+
+
+if TYPE_CHECKING:
+    from pytest_mock import MockFixture
 
 
 @overload
@@ -154,3 +159,24 @@ async def test_retier_raise_on_exception_class_async():
         await test_function()
 
     on_retry_mock.assert_not_called()
+
+
+async def test_retrier_with_timeout():
+    async def waiter():
+        await asyncio.sleep(0.2)
+
+    retrier = Retrier(timeout=0.1, delay=0.1, max_attempts=2)
+    test_function = retrier(waiter)
+
+    with pytest.raises(asyncio.TimeoutError):
+        await test_function()
+
+
+async def test_retrier_with_timeout_function_warns(mocker: MockFixture):
+    retrier = Retrier(timeout=0.1, delay=0.1, max_attempts=2)
+    test_function = retrier(mocker.MagicMock())
+
+    with pytest.warns(RuntimeWarning) as record:
+        test_function()
+
+    assert "The timeout parameter will be ignored." in str(record.list[-1].message)

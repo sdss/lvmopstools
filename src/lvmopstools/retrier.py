@@ -11,6 +11,7 @@ from __future__ import annotations
 import asyncio
 import inspect
 import time
+import warnings
 from dataclasses import dataclass, field
 from functools import wraps
 
@@ -78,6 +79,10 @@ class Retrier:
     raise_on_exception_class
         A list of exception classes that will cause an exception to be raised
         without retrying.
+    timeout
+        If defined, each attempt can take at most this amount of time. If the
+        attempt times out, an :obj:`asyncio.TimeoutError` will be raised.
+        This only works if the wrapped function is a coroutine.
 
     """
 
@@ -88,6 +93,7 @@ class Retrier:
     max_delay: float = 32.0
     on_retry: Callable[[Exception], None] | None = None
     raise_on_exception_class: list[type[Exception]] = field(default_factory=list)
+    timeout: float | None = None
 
     def calculate_delay(self, attempt: int) -> float:
         """Calculates the delay for a given attempt."""
@@ -128,7 +134,10 @@ class Retrier:
                 attempt = 0
                 while True:
                     try:
-                        return await func(*args, **kwargs)
+                        return await asyncio.wait_for(
+                            func(*args, **kwargs),
+                            timeout=self.timeout,
+                        )
                     except Exception as ee:
                         attempt += 1
                         if attempt >= self.max_attempts:
@@ -149,6 +158,12 @@ class Retrier:
                 attempt = 0
                 while True:
                     try:
+                        if self.timeout is not None:
+                            warnings.warn(
+                                "The wrapped function is not a coroutine. "
+                                "The timeout parameter will be ignored.",
+                                RuntimeWarning,
+                            )
                         return func(*args, **kwargs)
                     except Exception as ee:
                         attempt += 1

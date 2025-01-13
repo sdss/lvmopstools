@@ -6,6 +6,7 @@
 
 * Return the differential voltage in `read_ion_pumps`.
 * Updated IP addresses for ion pumps.
+* `Retrier` now accepts a `timeout` parameter.
 
 ## 0.5.6 - January 11, 2025
 
