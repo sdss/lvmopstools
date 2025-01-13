@@ -48,6 +48,7 @@ class IonPumpDict(TypedDict):
 
     pressure: float | None
     on: bool | None
+    diff_voltage: float | None
 
 
 @Retrier(max_attempts=3, delay=1)
@@ -78,7 +79,11 @@ async def _read_one_ion_controller(ion_config: dict) -> dict[str, IonPumpDict]:
             if pressure < 1e-8:
                 pressure = None
 
-            results[camera] = {"pressure": pressure, "on": onoff_status}
+            results[camera] = {
+                "pressure": pressure,
+                "on": onoff_status,
+                "diff_voltage": diff_volt,
+            }
 
     return results
 
@@ -106,7 +111,7 @@ async def read_ion_pumps(cameras: list[str] | None = None) -> dict[str, IonPumpD
                 continue
 
         for camera in controller_cameras:
-            results[camera] = {"pressure": None, "on": None}
+            results[camera] = {"pressure": None, "on": None, "diff_voltage": None}
 
         tasks.append(asyncio.create_task(_read_one_ion_controller(ion_controller)))
 

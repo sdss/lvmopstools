@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### ✨ Improved
+
+* Return the differential voltage in `read_ion_pumps`.
+* Updated IP addresses for ion pumps.
+
 ## 0.5.6 - January 11, 2025
 
 ### 🔧 Fixed
