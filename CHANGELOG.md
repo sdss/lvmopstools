@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### 🚀 New
+
+* Added `is_host_up` utility function.
+
+
 ## 0.5.7 - January 13, 2025
 
 ### ✨ Improved

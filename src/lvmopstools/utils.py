@@ -13,7 +13,10 @@ import time
 
 from typing import Any, Coroutine, TypeVar
 
+from nmap3 import NmapHostDiscovery
+
 from clu import AMQPClient
+from sdsstools.utils import run_in_executor
 
 
 __all__ = [
@@ -23,6 +26,7 @@ __all__ = [
     "with_timeout",
     "is_notebook",
     "Trigger",
+    "is_host_up",
 ]
 
 
@@ -202,3 +206,36 @@ class Trigger:
         self._check()
 
         return self._triggered
+
+
+async def is_host_up(host: str) -> bool:
+    """Returns whether a host is up.
+
+    Parameters
+    ----------
+    host
+        The host to check.
+
+    Returns
+    -------
+    is_up
+        ``True`` if the host is up, ``False`` otherwise.
+
+    """
+
+    nmap = NmapHostDiscovery()
+    result = await run_in_executor(
+        nmap.nmap_no_portscan,
+        host,
+        args="--host-timeout=1 --max-retries=2",
+    )
+
+    if (
+        host not in result
+        or not isinstance(result[host], dict)
+        or "state" not in result[host]
+        or "state" not in result[host]["state"]
+    ):
+        return False
+
+    return result[host]["state"]["state"] == "up"

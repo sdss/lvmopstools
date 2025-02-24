@@ -116,3 +116,23 @@ async def test_trigger_reset():
     trigger.reset()
     trigger.set()
     assert not trigger.is_set()
+
+
+async def test_host_is_up(mocker: pytest_mock.MockerFixture):
+    mocker.patch.object(
+        lvmopstools.utils.NmapHostDiscovery,
+        "nmap_no_portscan",
+        return_value={"host1": {"state": {"state": "up"}}},
+    )
+
+    assert await lvmopstools.utils.is_host_up("host1")
+
+
+async def test_host_is_up_bad_reply(mocker: pytest_mock.MockerFixture):
+    mocker.patch.object(
+        lvmopstools.utils.NmapHostDiscovery,
+        "nmap_no_portscan",
+        return_value={"host1": None},
+    )
+
+    assert (await lvmopstools.utils.is_host_up("host1")) is False
