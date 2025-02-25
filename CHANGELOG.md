@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### 🚀 New
+
+* Added `power_cycle_ag_camera` utility function.
+
+
 ## 0.5.8 - February 24, 2025
 
 ### 🚀 New

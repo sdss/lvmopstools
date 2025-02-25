@@ -30,6 +30,27 @@ notifications:
     password: null
 
 devices:
+  switch:
+    host: 10.8.1.177
+    username: lvmadmin
+    commands:
+      CAM-111: ['interface 2/0/6', 'poe reset']
+      CAM-112: ['interface 1/0/47', 'poe reset']
+      CAM-113: ['interface 2/0/12', 'poe reset']
+      CAM-114: ['interface 2/0/24', 'poe reset']
+      CAM-115: ['interface 1/0/43', 'poe reset']
+      CAM-116: ['interface 1/0/41', 'poe reset']
+      CAM-117: ['interface 2/0/10', 'poe reset']
+      TEST: ['interface 1/0/1', 'poe reset']
+    camera_to_ip:
+      sci-east: CAM-111
+      sci-west: CAM-112
+      skye-east: CAM-113
+      skye-west: CAM-114
+      skyw-east: CAM-115
+      skyw-west: CAM-116
+      spec-east: CAM-117
+
   thermistors:
     host: 10.8.38.180
     port: 1025

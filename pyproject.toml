@@ -39,6 +39,9 @@ ephemeris = [
 slack = [
     "slack-sdk>=3.34.0",
 ]
+netmiko = [
+    "netmiko>=4.5.0",
+]
 all = [
     "kubernetes>=31.0.0",
     "influxdb-client[async]>=1.47.0",
@@ -46,6 +49,7 @@ all = [
     "astropy>=7.0.0; python_version>='3.11'",
     "astroplan>=0.10.1",
     "slack-sdk>=3.34.0",
+    "netmiko>=4.5.0"
 ]
 
 [project.urls]
@@ -128,7 +132,8 @@ omit = [
 exclude_lines = [
     "if TYPE_CHECKING:",
     "# pragma: no cover",
-    "@abc.abstractmethod"
+    "@abc.abstractmethod",
+    "if verbose:"
 ]
 
 [build-system]

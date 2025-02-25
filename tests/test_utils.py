@@ -14,7 +14,13 @@ import pytest
 import pytest_mock
 
 import lvmopstools.utils
-from lvmopstools.utils import Trigger, is_notebook, with_timeout
+from lvmopstools.utils import (
+    Trigger,
+    is_host_up,
+    is_notebook,
+    power_cycle_ag_camera,
+    with_timeout,
+)
 
 
 async def _timeout(delay: float):
@@ -125,7 +131,7 @@ async def test_host_is_up(mocker: pytest_mock.MockerFixture):
         return_value={"host1": {"state": {"state": "up"}}},
     )
 
-    assert await lvmopstools.utils.is_host_up("host1")
+    assert await is_host_up("host1")
 
 
 async def test_host_is_up_bad_reply(mocker: pytest_mock.MockerFixture):
@@ -135,4 +141,53 @@ async def test_host_is_up_bad_reply(mocker: pytest_mock.MockerFixture):
         return_value={"host1": None},
     )
 
-    assert (await lvmopstools.utils.is_host_up("host1")) is False
+    assert (await is_host_up("host1")) is False
+
+
+@pytest.mark.parametrize("camera", ["CAM-111", 111, "sci-east"])
+def test_power_cycle_ag_camera(
+    mocker: pytest_mock.MockerFixture,
+    monkeypatch: pytest.MonkeyPatch,
+    camera: str | int,
+):
+    monkeypatch.setenv("LVM_SWITCH_PASSWORD", "password")
+    monkeypatch.setenv("LVM_SWITCH_SECRET", "secret")
+
+    handler_mock = mocker.patch.object(lvmopstools.utils.netmiko, "ConnectHandler")
+    send_config_set_mock = handler_mock.return_value.send_config_set
+
+    power_cycle_ag_camera(camera, verbose=False)  # type: ignore
+    send_config_set_mock.assert_called_with(["interface 2/0/6", "poe reset"])
+
+
+def test_power_cycle_ag_camera_invalid_camera(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("LVM_SWITCH_PASSWORD", "password")
+    monkeypatch.setenv("LVM_SWITCH_SECRET", "secret")
+
+    with pytest.raises(ValueError):
+        power_cycle_ag_camera("abcd")
+
+
+def test_power_cycle_ag_camera_no_password():
+    with pytest.raises(ValueError) as err:
+        power_cycle_ag_camera("CAM-111")
+
+    assert "$LVM_SWITCH_PASSWORD has not been set." in str(err.value)
+
+
+def test_power_cycle_ag_camera_no_secret(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("LVM_SWITCH_PASSWORD", "password")
+
+    with pytest.raises(ValueError) as err:
+        power_cycle_ag_camera("CAM-111")
+
+    assert "$LVM_SWITCH_SECRET has not been set." in str(err.value)
+
+
+def test_power_cycle_ag_camera_no_paramiko(mocker: pytest_mock.MockerFixture):
+    mocker.patch.object(lvmopstools.utils, "netmiko", None)
+
+    with pytest.raises(ImportError) as err:
+        power_cycle_ag_camera("CAM-111")
+
+    assert "netmiko is required to power cycle the switch port." in str(err.value)
