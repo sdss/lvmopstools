@@ -11,6 +11,7 @@ from __future__ import annotations
 import asyncio
 import os
 import re
+import subprocess
 import time
 
 from typing import Any, Coroutine, TypeVar
@@ -38,6 +39,7 @@ __all__ = [
     "Trigger",
     "is_host_up",
     "power_cycle_ag_camera",
+    "is_root",
 ]
 
 
@@ -219,13 +221,23 @@ class Trigger:
         return self._triggered
 
 
-async def is_host_up(host: str) -> bool:
+def is_root():
+    """Returns whether the user is root. This may not work in all systems."""
+
+    return os.geteuid() == 0
+
+
+async def is_host_up(host: str, use_ping_if_not_root: bool = True) -> bool:
     """Returns whether a host is up.
 
     Parameters
     ----------
     host
         The host to check.
+    use_ping_if_not_root
+        If ``True``, a system ping will be used if the user is not root.
+        This is less reliable than using nmap, but nmapping requires being
+        root for reliable results.
 
     Returns
     -------
@@ -233,6 +245,23 @@ async def is_host_up(host: str) -> bool:
         ``True`` if the host is up, ``False`` otherwise.
 
     """
+
+    if not is_root():
+        if use_ping_if_not_root:
+            cmd = await asyncio.create_subprocess_exec(
+                "ping",
+                "-c",
+                "1",
+                "-W",
+                "5",
+                host,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            return_code = await cmd.wait()
+            return return_code == 0
+
+        raise PermissionError("root privileges are required to run nmap.")
 
     nmap = NmapHostDiscovery()
     result = await run_in_executor(

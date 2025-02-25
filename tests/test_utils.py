@@ -125,6 +125,7 @@ async def test_trigger_reset():
 
 
 async def test_host_is_up(mocker: pytest_mock.MockerFixture):
+    mocker.patch.object(lvmopstools.os, "geteuid", return_value=0)
     mocker.patch.object(
         lvmopstools.utils.NmapHostDiscovery,
         "nmap_no_portscan",
@@ -135,6 +136,7 @@ async def test_host_is_up(mocker: pytest_mock.MockerFixture):
 
 
 async def test_host_is_up_bad_reply(mocker: pytest_mock.MockerFixture):
+    mocker.patch.object(lvmopstools.os, "geteuid", return_value=0)
     mocker.patch.object(
         lvmopstools.utils.NmapHostDiscovery,
         "nmap_no_portscan",
@@ -142,6 +144,22 @@ async def test_host_is_up_bad_reply(mocker: pytest_mock.MockerFixture):
     )
 
     assert (await is_host_up("host1")) is False
+
+
+async def test_host_is_up_non_root(mocker: pytest_mock.MockerFixture):
+    mocker.patch.object(lvmopstools.os, "geteuid", return_value=1)
+    sp_mock = mocker.patch.object(lvmopstools.utils.asyncio, "create_subprocess_exec")
+    wait_mock = sp_mock.return_value.wait
+    wait_mock.return_value = 0
+
+    assert await is_host_up("host1")
+
+
+async def test_host_is_up_no_use_ping(mocker: pytest_mock.MockerFixture):
+    mocker.patch.object(lvmopstools.os, "geteuid", return_value=1)
+
+    with pytest.raises(PermissionError):
+        await is_host_up("host1", use_ping_if_not_root=False)
 
 
 @pytest.mark.parametrize("camera", ["CAM-111", 111, "sci-east"])

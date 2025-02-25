@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### ✨ Improved
+
+* Use system ping in `is_host_up` if the process is not running as root.
+
+
 ## 0.5.9 - February 24, 2025
 
 ### 🚀 New
