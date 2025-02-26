@@ -13,6 +13,7 @@ import os
 import re
 import subprocess
 import time
+import warnings
 
 from typing import Any, Coroutine, TypeVar
 
@@ -261,11 +262,13 @@ async def is_host_up(host: str, fallback_to_ping: bool = True) -> bool:
 
     if not is_root():
         if fallback_to_ping:
+            warnings.warn('Running as non-root; using "ping" instead of "nmap".')
             return await ping_host(host)
         raise PermissionError("root privileges are required to run nmap.")
 
     if not nmap3.get_nmap_path():
         if fallback_to_ping:
+            warnings.warn('nmap not available. Using "ping instead.')
             return await ping_host(host)
         raise RuntimeError("nmap is not available.")
 
