@@ -16,7 +16,7 @@ import time
 
 from typing import Any, Coroutine, TypeVar
 
-from nmap3 import NmapHostDiscovery
+import nmap3
 
 from clu import AMQPClient
 from sdsstools.utils import run_in_executor
@@ -227,17 +227,30 @@ def is_root():
     return os.geteuid() == 0
 
 
-async def is_host_up(host: str, use_ping_if_not_root: bool = True) -> bool:
+async def ping_host(host: str):
+    """Pings a host."""
+
+    cmd = await asyncio.create_subprocess_exec(
+        *["ping", "-c", "1", "-W", "5", host],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+
+    return_code = await cmd.wait()
+    return return_code == 0
+
+
+async def is_host_up(host: str, fallback_to_ping: bool = True) -> bool:
     """Returns whether a host is up.
 
     Parameters
     ----------
     host
         The host to check.
-    use_ping_if_not_root
-        If ``True``, a system ping will be used if the user is not root.
-        This is less reliable than using nmap, but nmapping requires being
-        root for reliable results.
+    fallback_to_ping
+        If ``True``, a system ping will be used if the user is not root or nmap
+        is not available. This is less reliable than using nmap, but nmap requires
+        running as root for reliable results.
 
     Returns
     -------
@@ -247,23 +260,16 @@ async def is_host_up(host: str, use_ping_if_not_root: bool = True) -> bool:
     """
 
     if not is_root():
-        if use_ping_if_not_root:
-            cmd = await asyncio.create_subprocess_exec(
-                "ping",
-                "-c",
-                "1",
-                "-W",
-                "5",
-                host,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-            )
-            return_code = await cmd.wait()
-            return return_code == 0
-
+        if fallback_to_ping:
+            return await ping_host(host)
         raise PermissionError("root privileges are required to run nmap.")
 
-    nmap = NmapHostDiscovery()
+    if not nmap3.get_nmap_path():
+        if fallback_to_ping:
+            return await ping_host(host)
+        raise RuntimeError("nmap is not available.")
+
+    nmap = nmap3.NmapHostDiscovery()
     result = await run_in_executor(
         nmap.nmap_no_portscan,
         host,

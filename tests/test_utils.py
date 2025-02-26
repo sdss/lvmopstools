@@ -126,8 +126,15 @@ async def test_trigger_reset():
 
 async def test_host_is_up(mocker: pytest_mock.MockerFixture):
     mocker.patch.object(lvmopstools.os, "geteuid", return_value=0)
+
     mocker.patch.object(
-        lvmopstools.utils.NmapHostDiscovery,
+        lvmopstools.utils.nmap3,
+        "get_nmap_path",
+        return_value="/bin/nmap",
+    )
+
+    mocker.patch.object(
+        lvmopstools.utils.nmap3.NmapHostDiscovery,
         "nmap_no_portscan",
         return_value={"host1": {"state": {"state": "up"}}},
     )
@@ -137,8 +144,15 @@ async def test_host_is_up(mocker: pytest_mock.MockerFixture):
 
 async def test_host_is_up_bad_reply(mocker: pytest_mock.MockerFixture):
     mocker.patch.object(lvmopstools.os, "geteuid", return_value=0)
+
     mocker.patch.object(
-        lvmopstools.utils.NmapHostDiscovery,
+        lvmopstools.utils.nmap3,
+        "get_nmap_path",
+        return_value="/bin/nmap",
+    )
+
+    mocker.patch.object(
+        lvmopstools.utils.nmap3.NmapHostDiscovery,
         "nmap_no_portscan",
         return_value={"host1": None},
     )
@@ -153,13 +167,34 @@ async def test_host_is_up_non_root(mocker: pytest_mock.MockerFixture):
     wait_mock.return_value = 0
 
     assert await is_host_up("host1")
+    sp_mock.assert_called()
 
 
 async def test_host_is_up_no_use_ping(mocker: pytest_mock.MockerFixture):
     mocker.patch.object(lvmopstools.os, "geteuid", return_value=1)
 
     with pytest.raises(PermissionError):
-        await is_host_up("host1", use_ping_if_not_root=False)
+        await is_host_up("host1", fallback_to_ping=False)
+
+
+async def test_host_is_up_no_nmap(mocker: pytest_mock.MockerFixture):
+    mocker.patch.object(lvmopstools.os, "geteuid", return_value=0)
+    mocker.patch.object(lvmopstools.utils.nmap3, "get_nmap_path", return_value="")
+
+    sp_mock = mocker.patch.object(lvmopstools.utils.asyncio, "create_subprocess_exec")
+    wait_mock = sp_mock.return_value.wait
+    wait_mock.return_value = 0
+
+    assert await is_host_up("host1")
+    sp_mock.assert_called()
+
+
+async def test_host_is_up_no_nmap_no_use_ping(mocker: pytest_mock.MockerFixture):
+    mocker.patch.object(lvmopstools.os, "geteuid", return_value=0)
+    mocker.patch.object(lvmopstools.utils.nmap3, "get_nmap_path", return_value="")
+
+    with pytest.raises(RuntimeError):
+        await is_host_up("host1", fallback_to_ping=False)
 
 
 @pytest.mark.parametrize("camera", ["CAM-111", 111, "sci-east"])
