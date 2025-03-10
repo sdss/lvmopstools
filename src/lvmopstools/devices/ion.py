@@ -82,9 +82,9 @@ async def _read_one_ion_controller(ion_config: dict) -> dict[str, IonPumpDict]:
                 pressure = None
 
             results[camera] = {
-                "pressure": pressure,
+                "pressure": float(f"{pressure:.3g}") if pressure is not None else None,
                 "on": onoff_status,
-                "diff_voltage": diff_volt,
+                "diff_voltage": round(diff_volt, 3),
             }
 
     return results

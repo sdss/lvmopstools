@@ -4,8 +4,9 @@
 
 ### ✨ Improved
 
-* Use system ping in `is_host_up` if the process is not running as root.
 * [#13](https://github.com/sdss/lvmopstools/pull/13) Allow to toggle an ion pump connected to an NPS outlet.
+* Use system ping in `is_host_up` if the process is not running as root.
+* Round up pressure and differential voltage.
 
 
 ## 0.5.9 - February 24, 2025
