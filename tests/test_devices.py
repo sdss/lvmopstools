@@ -17,6 +17,7 @@ from clu.command import Command, CommandStatus
 from drift import Drift
 
 import lvmopstools.devices.ion
+import lvmopstools.devices.nps
 from lvmopstools import config
 from lvmopstools.devices.ion import ALL, read_ion_pumps, toggle_ion_pump
 from lvmopstools.devices.thermistors import read_thermistors
@@ -66,8 +67,22 @@ async def test_check_config():
     assert config["devices.ion"][1]["port"] == 5020
 
 
-async def test_read_ion_pumps(ion_pump_server):
+async def test_read_ion_pumps(ion_pump_server, mocker: MockerFixture):
     """Tests ``read_ion_pumps``."""
+
+    mocker.patch.object(
+        lvmopstools.devices.nps,
+        "send_clu_command",
+        return_value=[
+            {
+                "outlet_info": {
+                    "id": 8,
+                    "normalised_name": "all_three_ion_pumps",
+                    "state": True,
+                }
+            }
+        ],
+    )
 
     values = await read_ion_pumps()
 
@@ -80,6 +95,10 @@ async def test_read_ion_pumps(ion_pump_server):
 
     values_b2 = await read_ion_pumps(cameras=["b2"])
     assert len(values_b2) == 1
+
+    values_b1 = await read_ion_pumps(cameras=["b1"])
+    assert len(values_b1) == 1
+    assert values_b1["b1"]["pressure"] is None
 
 
 async def test_toggle_ion_pump(ion_pump_server):

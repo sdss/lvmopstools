@@ -16,7 +16,7 @@ from lvmopstools.clu import send_clu_command
 from lvmopstools.retrier import Retrier
 
 
-__all__ = ["read_nps"]
+__all__ = ["read_nps", "read_outlet"]
 
 
 class NPSStatus(TypedDict):
@@ -59,3 +59,17 @@ async def read_nps() -> dict[str, NPSStatus]:
             )
 
     return nps_data
+
+
+@Retrier(max_attempts=3, delay=1)
+async def read_outlet(actor: str, outlet: str | int) -> NPSStatus:
+    """Returns the status of a single NPS outlet."""
+
+    data = await send_clu_command(f"{actor} status {outlet}", internal=True)
+
+    return {
+        "actor": actor,
+        "name": data[0]["outlet_info"]["normalised_name"],
+        "id": data[0]["outlet_info"]["id"],
+        "state": data[0]["outlet_info"]["state"],
+    }

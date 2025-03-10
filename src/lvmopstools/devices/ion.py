@@ -20,6 +20,7 @@ from drift.convert import data_to_float32
 
 from lvmopstools import config
 from lvmopstools.clu import send_clu_command
+from lvmopstools.devices.nps import read_outlet
 from lvmopstools.retrier import Retrier
 
 
@@ -106,10 +107,8 @@ async def read_ion_pumps(cameras: list[str] | None = None) -> dict[str, IonPumpD
 
     for ion_controller in ion_config:
         type_ = ion_controller.get("type", "ion_controller")
-        if type_ != "ion_controller":  # We cannot read ion pumps connected to an NPS
-            continue
-
         controller_cameras = ion_controller["cameras"]
+
         if cameras is not None:
             # Skip reading this controller if none of the cameras are in the list.
             if len(set(cameras) & set(controller_cameras)) == 0:
@@ -118,7 +117,20 @@ async def read_ion_pumps(cameras: list[str] | None = None) -> dict[str, IonPumpD
         for camera in controller_cameras:
             results[camera] = {"pressure": None, "on": None, "diff_voltage": None}
 
-        tasks.append(asyncio.create_task(_read_one_ion_controller(ion_controller)))
+            if type_ == "nps":
+                if (cameras is None) or (cameras is not None and camera in cameras):
+                    nps_data = await read_outlet(
+                        ion_controller["actor"],
+                        ion_controller["outlet"],
+                    )
+                    results[camera] = {
+                        "pressure": None,
+                        "on": nps_data["state"],
+                        "diff_voltage": None,
+                    }
+
+        if type_ == "ion_controller":
+            tasks.append(asyncio.create_task(_read_one_ion_controller(ion_controller)))
 
     await asyncio.gather(*tasks, return_exceptions=True)
 
