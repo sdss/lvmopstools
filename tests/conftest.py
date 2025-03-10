@@ -78,9 +78,7 @@ rabbitmq_client = rabbitmq("rabbitmq_proc_custom")
 
 
 @pytest.fixture(scope="session", autouse=True)
-def monkeypatch_config(
-    tmp_path_factory: pytest.TempPathFactory,
-):
+def monkeypatch_config(tmp_path_factory: pytest.TempPathFactory):
     # Replace the placeholder in the test config file with the actual RMQ port.
     test_config_path = pathlib.Path(__file__).parent / "data" / "test_config.yaml"
     test_config = test_config_path.read_text()

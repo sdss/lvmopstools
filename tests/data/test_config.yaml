@@ -42,6 +42,10 @@ devices:
       z2: 15
 
   ion:
+    - actor: lvmnps.sp1
+      outlet: 1
+      cameras: ['z1', 'b1', 'r1']
+      type: nps
     - host: 127.0.0.1
       port: 5020
       cameras:

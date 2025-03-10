@@ -19,6 +19,8 @@ from drift import Drift
 from drift.convert import data_to_float32
 
 from lvmopstools import config
+from lvmopstools.clu import send_clu_command
+from lvmopstools.devices.nps import read_outlet
 from lvmopstools.retrier import Retrier
 
 
@@ -104,7 +106,9 @@ async def read_ion_pumps(cameras: list[str] | None = None) -> dict[str, IonPumpD
     tasks: list[asyncio.Task] = []
 
     for ion_controller in ion_config:
+        type_ = ion_controller.get("type", "ion_controller")
         controller_cameras = ion_controller["cameras"]
+
         if cameras is not None:
             # Skip reading this controller if none of the cameras are in the list.
             if len(set(cameras) & set(controller_cameras)) == 0:
@@ -113,7 +117,20 @@ async def read_ion_pumps(cameras: list[str] | None = None) -> dict[str, IonPumpD
         for camera in controller_cameras:
             results[camera] = {"pressure": None, "on": None, "diff_voltage": None}
 
-        tasks.append(asyncio.create_task(_read_one_ion_controller(ion_controller)))
+            if type_ == "nps":
+                if (cameras is None) or (cameras is not None and camera in cameras):
+                    nps_data = await read_outlet(
+                        ion_controller["actor"],
+                        ion_controller["outlet"],
+                    )
+                    results[camera] = {
+                        "pressure": None,
+                        "on": nps_data["state"],
+                        "diff_voltage": None,
+                    }
+
+        if type_ == "ion_controller":
+            tasks.append(asyncio.create_task(_read_one_ion_controller(ion_controller)))
 
     await asyncio.gather(*tasks, return_exceptions=True)
 
@@ -157,19 +174,48 @@ async def toggle_ion_pump(camera: str, on: bool):
             await toggle_ion_pump(camera, on)
         return
 
+    # ion_controller or nps
+    type_: str | None = None
+
+    # Ion pump connected to an NPS
+    actor: str | None = None
+    outlet: str | int | None = None
+
+    # Ion controller box
     host: str | None = None
     port: int | None = None
     on_off_address: int | None = None
 
     for ic in ion_config:
         if camera in ic["cameras"]:
-            host = ic["host"]
-            port = ic.get("port", 502)
-            on_off_address = ic["cameras"][camera]["on_off_address"]
+            type_ = ic.get("type", "ion_controller")
+            if type_ == "ion_controller":
+                host = ic["host"]
+                port = ic.get("port", 502)
+                on_off_address = ic["cameras"][camera]["on_off_address"]
+            elif type_ == "nps":
+                actor = ic["actor"]
+                outlet = ic["outlet"]
+            else:
+                raise ValueError(f"Unknown type {type_!r} for ion controller {ic!r}.")
+
             break
 
-    if host is None or port is None or on_off_address is None:
+    if type_ is None:
         raise ValueError(f"Camera {camera!r} not found in the configuration.")
+
+    if type_ == "nps":
+        cmd = await send_clu_command(
+            f"{actor} {'on' if on else 'off'} {outlet}",
+            raw=True,
+        )
+        if cmd.status.did_fail:
+            raise ValueError(f"Error toggling ion pump for camera {camera!r} via NPS.")
+        return
+
+    # Ion controller box
+    if host is None or port is None or on_off_address is None:
+        raise ValueError(f"Camera {camera!r} configuration is incomplete.")
 
     drift = Drift(host, port)
 
