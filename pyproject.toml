@@ -52,6 +52,9 @@ all = [
     "netmiko>=4.5.0"
 ]
 
+[tool.uv]
+default-groups = "all"
+
 [project.urls]
 Homepage = "https://github.com/sdss/lvmopstools"
 Repository = "https://github.com/sdss/lvmopstools"
