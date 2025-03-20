@@ -9,4 +9,5 @@
 from .ion import *
 from .nps import *
 from .specs import *
+from .switch import *
 from .thermistors import *

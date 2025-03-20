@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### ✨ Improved
+
+* Move `power_cycle_ag_camera` to `lvmopstools.devices.switch`.
+
+
 ## 0.5.10 - March 10, 2025
 
 ### ✨ Improved
