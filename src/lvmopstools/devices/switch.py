@@ -16,7 +16,7 @@ import netmiko
 from lvmopstools import config
 
 
-__all__ = ["power_cycle_ag_camera"]
+__all__ = ["power_cycle_ag_camera", "get_poe_port_info"]
 
 
 def _get_connection(enable: bool = True):
@@ -110,15 +110,17 @@ def get_poe_port_info(camera: str | None) -> dict[str, str]:
 
     connection = _get_connection()
 
-    cam_interface = config["devices.switch.camera_to_interface"][camera]
+    cam_interfaces = config["devices.switch.camera_to_interface"]
 
     results: dict[str, str] = {}
-    cams = [camera] if camera else config["devices.switch.camera_to_interface"].keys()
+    cams = [camera] if camera else config["devices.switch.camera_to_ip"].keys()
 
     for cam in cams:
-        data = connection.send_config_set(
-            [f"interface {cam_interface}", "show poe port info"],
-        )
+        interface = cam_interfaces[config["devices.switch.camera_to_ip"][cam]]
+
+        data = connection.send_command(f"show poe port info {interface}")
+        assert isinstance(data, str)
+
         results[cam] = data
 
     connection.disconnect()
