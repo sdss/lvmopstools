@@ -4,6 +4,7 @@
 
 ### ✨ Improved
 
+* [#14](https://github.com/sdss/lvmopstools/pull/14) Add `get_poe_port_info()`.
 * Move `power_cycle_ag_camera` to `lvmopstools.devices.switch`.
 
 
