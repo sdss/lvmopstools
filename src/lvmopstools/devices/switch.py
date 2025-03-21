@@ -92,7 +92,7 @@ def power_cycle_ag_camera(camera: str, verbose: bool = False):
     connection.disconnect()
 
 
-def get_poe_port_info(camera: str | None) -> dict[str, str]:
+def get_poe_port_info(camera: str | None = None) -> dict[str, str]:
     """Returns the PoE port information for a given camera.
 
     Parameters
