@@ -5,6 +5,7 @@
 ### ✨ Improved
 
 * `get_weather_data`: Iterate over the time interval in small increments to ensure that the LCO weather API returns all the data.
+* `is_weather_data_safe`: Added argument `now` to define the reference point from which to determine if the weather is safe.
 
 
 ## 0.5.11 - March 21, 2025

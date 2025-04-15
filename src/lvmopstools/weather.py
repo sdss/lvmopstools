@@ -140,19 +140,14 @@ async def get_weather_data(
     start_time = format_time(start_time)
     end_time = format_time(end_time or time.time())
 
-    results = await get_from_lco_api(start_time, end_time, station)
-
-    df = polars.DataFrame(results)
-    df = df.with_columns(
-        ts=polars.col("ts").str.to_datetime(time_unit="ms", time_zone="UTC"),
-        station=polars.lit(station, polars.String),
-    )
+    df = await get_from_lco_api(start_time, end_time, station)
+    df = df.with_columns(station=polars.lit(station, polars.String))
 
     # Delete rows with all null values.
     df = df.filter(~polars.all_horizontal(polars.exclude("ts", "station").is_null()))
 
-    # Sort by timestamp
-    df = df.sort("ts")
+    # Sort by timestamp and keep only unique timestamps.
+    df = df.sort("ts").unique("ts")
 
     # Convert wind speeds to mph (the LCO API returns km/h)
     df = df.with_columns(polars.selectors.starts_with("wind_") / 1.60934)
@@ -199,6 +194,7 @@ def is_weather_data_safe(
     data: polars.DataFrame,
     measurement: str,
     threshold: float,
+    now: float | datetime.datetime | None = None,
     window: int = 30,
     rolling_average_window: int = 10,
     reopen_value: float | None = None,
@@ -210,6 +206,8 @@ def is_weather_data_safe(
     ``threshold``. Once the alert has been raised  the value of the ``measurement``
     must fall below the ``reopen_value`` to close the alert (defaults to the same
     ``threshold`` value) in a rolling.
+
+    If ``now`` is not provie the current time is used as the reference point.
 
     ``window`` and ``rolling_average_window`` are in minutes.
 
@@ -242,7 +240,11 @@ def is_weather_data_safe(
     )
 
     # Get data from the last window`.
-    now = time.time()
+    if now is None:
+        now = time.time()
+    elif isinstance(now, datetime.datetime):
+        now = now.timestamp()
+
     data_window = data.filter(polars.col.timestamp > (now - window * 60))
 
     # If any of the values in the last "window" is above the threshold, it's unsafe.
