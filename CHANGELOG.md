@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.13 - April 15, 2025
+
+### 🔧 Fixed
+
+* Correctly filter data between initial and end dates in `get_from_lco_api`.
+
+
 ## 0.5.12 - April 15, 2025
 
 ### ✨ Improved
