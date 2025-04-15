@@ -1210,7 +1210,7 @@ wheels = [
 
 [[package]]
 name = "lvmopstools"
-version = "0.5.12"
+version = "0.5.13a0"
 source = { editable = "." }
 dependencies = [
     { name = "aio-pika" },
