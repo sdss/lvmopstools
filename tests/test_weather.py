@@ -22,10 +22,13 @@ from lvmopstools.weather import get_weather_data, is_weather_data_safe
 @pytest.fixture
 def mock_get_from_lco_api(mocker: pytest_mock.MockerFixture):
     data = pathlib.Path(__file__).parent / "data" / "weather_response.json"
-    mocker.patch(
-        "lvmopstools.weather.get_from_lco_api",
-        return_value=json.loads(data.read_text()),
+
+    data = json.loads(data.read_text())
+    df = polars.DataFrame(data).with_columns(
+        ts=polars.col.ts.str.to_datetime(time_unit="ms", time_zone="UTC")
     )
+
+    mocker.patch("lvmopstools.weather.get_from_lco_api", return_value=df)
 
 
 @pytest.mark.parametrize(

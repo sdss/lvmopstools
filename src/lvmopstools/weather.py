@@ -34,8 +34,6 @@ def format_time(time: str | float) -> str:
             .replace("+00:00", "")
         )
 
-    if "T" in time:
-        time = time.replace("T", " ")
     if "." in time:
         time = time.split(".")[0]
 
@@ -49,27 +47,63 @@ async def get_from_lco_api(
 ):  # pragma: no cover
     """Queries the LCO API for weather data."""
 
+    start_time_dt = datetime.datetime.strptime(
+        start_time,
+        "%Y-%m-%dT%H:%M:%S",
+    )
+    end_time_dt = datetime.datetime.strptime(
+        end_time,
+        "%Y-%m-%dT%H:%M:%S",
+    )
+
+    data_chunks: list[polars.DataFrame] = []
+
     async with httpx.AsyncClient() as client:
-        response = await client.get(
-            WEATHER_URL,
-            params={
-                "start_ts": start_time,
-                "end_ts": end_time,
-                "station": station,
-            },
-        )
+        dt0 = start_time_dt
 
-        if response.status_code != 200:
-            raise ValueError(f"Failed to get weather data: {response.text}")
+        # The API will only return one hour of data so we loop over it and concatenate.
+        while True:
+            # Use chunks of 30 minutes to be completely sure the API will return
+            # the data for that interval.
+            dt1 = dt0 + datetime.timedelta(hours=0.5)
 
-        data = response.json()
+            response = await client.get(
+                WEATHER_URL,
+                params={
+                    "start_ts": dt0.strftime("%Y-%m-%dT%H:%M:%S"),
+                    "end_ts": dt1.strftime("%Y-%m-%dT%H:%M:%S"),
+                    "station": station,
+                },
+            )
 
-        if "Error" in data:
-            raise ValueError(f"Failed to get weather data: {data['Error']}")
-        elif "results" not in data or data["results"] is None:
-            raise ValueError("Failed to get weather data: no results found.")
+            if response.status_code != 200:
+                raise ValueError(f"Failed to get weather data: {response.text}")
 
-    return data["results"]
+            data = response.json()
+
+            if "Error" in data:
+                raise ValueError(f"Failed to get weather data: {data['Error']}")
+            elif "results" not in data or data["results"] is None:
+                raise ValueError("Failed to get weather data: no results found.")
+
+            data_df = polars.DataFrame(data["results"]).with_columns(
+                ts=polars.col.ts.str.to_datetime(time_unit="ms", time_zone="UTC")
+            )
+            data_chunks.append(data_df)
+
+            if dt1 >= end_time_dt:
+                break
+
+            # Increase the time window by a bit less than 30 minutes to ensure that
+            # we don't lose any data points.
+            dt0 = dt0 + datetime.timedelta(hours=0.45)
+
+    data = polars.concat(data_chunks).filter(
+        polars.col.ts.dt.date() >= start_time_dt.date(),
+        polars.col.ts.dt.date() <= end_time_dt.date(),
+    )
+
+    return data
 
 
 async def get_weather_data(

@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### ✨ Improved
+
+* `get_weather_data`: Iterate over the time interval in small increments to ensure that the LCO weather API returns all the data.
+
+
 ## 0.5.11 - March 21, 2025
 
 ### ✨ Improved
