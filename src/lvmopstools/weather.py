@@ -243,6 +243,8 @@ def is_weather_data_safe(
     if now is None:
         now = time.time()
     elif isinstance(now, datetime.datetime):
+        if now.tzinfo is None:
+            now = now.replace(tzinfo=datetime.timezone.utc)
         now = now.timestamp()
 
     data_window = data.filter(polars.col.timestamp > (now - window * 60))

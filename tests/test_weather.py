@@ -20,6 +20,9 @@ import pytest_mock
 from lvmopstools.weather import get_weather_data, is_weather_data_safe
 
 
+UTC = datetime.timezone.utc
+
+
 @pytest.fixture
 def mock_get_from_lco_api(mocker: pytest_mock.MockerFixture):
     data = pathlib.Path(__file__).parent / "data" / "weather_response.json"
@@ -44,7 +47,13 @@ async def test_get_weather_data(mock_get_from_lco_api, start_time: str | float):
 
 
 @pytest.mark.parametrize(
-    "now", [None, 1732680854.704, datetime.datetime(2024, 11, 27, 4, 14, 14, 704000)]
+    "now",
+    [
+        None,
+        1732680854.704,
+        datetime.datetime(2024, 11, 27, 4, 14, 14, 704000),
+        datetime.datetime(2024, 11, 27, 4, 14, 14, 704000, tzinfo=UTC),
+    ],
 )
 async def test_is_weather_data_safe(
     mock_get_from_lco_api,

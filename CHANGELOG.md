@@ -5,7 +5,7 @@
 ### 🔧 Fixed
 
 * Fixed optional import of `netmiko` in `lvmopstools.devices.switch`.
-
+* Default to UTC if the `datetime` passed to `is_weather_data_safe` does not include a time zone.
 
 
 ## 0.5.13 - April 15, 2025
