@@ -11,9 +11,13 @@ from __future__ import annotations
 import os
 import re
 
-import netmiko
-
 from lvmopstools import config
+
+
+try:
+    import netmiko
+except ImportError:
+    netmiko = None
 
 
 __all__ = ["power_cycle_ag_camera", "get_poe_port_info"]

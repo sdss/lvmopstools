@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.14 - April 16, 2025
+
+### 🔧 Fixed
+
+* Fixed optional import of `netmiko` in `lvmopstools.devices.switch`.
+
+
+
 ## 0.5.13 - April 15, 2025
 
 ### 🔧 Fixed
