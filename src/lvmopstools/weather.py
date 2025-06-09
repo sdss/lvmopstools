@@ -11,6 +11,8 @@ from __future__ import annotations
 import datetime
 import time
 
+from typing import Literal
+
 import httpx
 import polars
 
@@ -18,7 +20,7 @@ import polars
 __all__ = ["get_weather_data", "is_weather_data_safe"]
 
 
-WEATHER_URL = "http://dataservice.lco.cl/vaisala/data"
+WEATHER_URL = "http://env-api.lco.cl/metrics/weather"
 
 
 def format_time(time: str | float) -> str:
@@ -72,7 +74,7 @@ async def get_from_lco_api(
                 params={
                     "start_ts": dt0.strftime("%Y-%m-%dT%H:%M:%S"),
                     "end_ts": dt1.strftime("%Y-%m-%dT%H:%M:%S"),
-                    "station": station,
+                    "source": station.lower(),
                 },
             )
 
@@ -109,7 +111,7 @@ async def get_from_lco_api(
 async def get_weather_data(
     start_time: str | float,
     end_time: str | float | None = None,
-    station="DuPont",
+    station: Literal["dupont", "swope", "magellan"] = "dupont",
 ):
     """Returns a data frame with weather data from the du Pont station.
 
@@ -134,8 +136,8 @@ async def get_weather_data(
 
     """
 
-    if station not in ["DuPont", "C40", "Magellan"]:
-        raise ValueError("station must be one of 'DuPont', 'C40', or 'Magellan'.")
+    if station not in ["dupont", "swope", "magellan"]:
+        raise ValueError("station must be one of 'dupont', 'swope', or 'magellan'.")
 
     start_time = format_time(start_time)
     end_time = format_time(end_time or time.time())

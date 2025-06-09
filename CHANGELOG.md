@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.15 - June 9, 2025
+
+### 🔧 Fixed
+
+* Updated the LCO weather API endpoint.
+
+
 ## 0.5.14 - April 16, 2025
 
 ### 🔧 Fixed
