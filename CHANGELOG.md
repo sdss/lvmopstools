@@ -5,6 +5,7 @@
 ### 🔧 Fixed
 
 * New weather API now returns wind speeds in miles per hour.
+* Fix deprecation in `polars.dt.datetime()`.
 
 
 ## 0.5.15 - June 9, 2025
