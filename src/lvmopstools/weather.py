@@ -151,9 +151,6 @@ async def get_weather_data(
     # Sort by timestamp and keep only unique timestamps.
     df = df.sort("ts").unique("ts")
 
-    # Convert wind speeds to mph (the LCO API returns km/h)
-    df = df.with_columns(polars.selectors.starts_with("wind_") / 1.60934)
-
     # Calculate rolling means for average wind speed and gusts every 5m, 10m, 30m
     window_sizes = ["5m", "10m", "30m"]
     df = df.with_columns(

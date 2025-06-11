@@ -1,5 +1,12 @@
 # Changelog
 
+## Next release
+
+### 🔧 Fixed
+
+* New weather API now returns wind speeds in miles per hour.
+
+
 ## 0.5.15 - June 9, 2025
 
 ### 🔧 Fixed
