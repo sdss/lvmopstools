@@ -101,8 +101,8 @@ async def get_from_lco_api(
             dt0 = dt0 + datetime.timedelta(hours=0.45)
 
     data = polars.concat(data_chunks).filter(
-        polars.col.ts.dt.datetime() >= start_time_dt,
-        polars.col.ts.dt.datetime() <= end_time_dt,
+        polars.col.ts.dt.replace_time_zone(None) >= start_time_dt,
+        polars.col.ts.dt.replace_time_zone(None) <= end_time_dt,
     )
 
     return data
