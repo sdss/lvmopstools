@@ -149,7 +149,11 @@ async def get_weather_data(
     df = df.filter(~polars.all_horizontal(polars.exclude("ts", "station").is_null()))
 
     # Sort by timestamp and keep only unique timestamps.
-    df = df.sort("ts").unique("ts")
+    df = (
+        df.sort("ts")
+        .unique("ts")
+        .drop_nulls(["wind_speed_avg", "wind_speed_max", "wind_dir_avg"])
+    )
 
     # Calculate rolling means for average wind speed and gusts every 5m, 10m, 30m
     window_sizes = ["5m", "10m", "30m"]
