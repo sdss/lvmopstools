@@ -259,6 +259,7 @@ def is_weather_data_safe(
 
     data = data.select(polars.col.ts, polars.col(measurement))
     data = data.filter(~polars.all_horizontal(polars.exclude("ts").is_null()))
+    data = data.sort("ts")
     data = data.with_columns(
         timestamp=polars.col.ts.dt.timestamp("ms") / 1000,
         average=polars.col(measurement).rolling_mean_by(
@@ -276,6 +277,10 @@ def is_weather_data_safe(
         now = now.timestamp()
 
     data_window = data.filter(polars.col.timestamp > (now - window * 60))
+
+    if data_window.height == 0:
+        warnings.warn("No data available for the specified measurement.", UserWarning)
+        return False
 
     # If any of the values in the last "window" is above the threshold, it's unsafe.
     if (data_window["average"] >= threshold).any():

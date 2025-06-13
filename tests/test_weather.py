@@ -83,3 +83,8 @@ async def test_is_weather_data_safe(
         reopen_value=10,
         now=now,
     )
+
+
+async def test_is_weather_data_safe_no_data():
+    data = polars.DataFrame([], schema=WEATHER_SCHEMA)
+    assert not is_weather_data_safe(data, "wind_speed_avg", 5)
