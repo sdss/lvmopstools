@@ -8,6 +8,8 @@
 * Fix deprecation in `polars.dt.datetime()`.
 * Convert temperature from Fahrenheit to Celsius after LCO API change.
 * Handle empty data in the LCO weather API.
+* Pin `pymodbus==3.9.1`.
+* Pin `click<8.2.0`.
 
 
 ## 0.5.15 - June 9, 2025
