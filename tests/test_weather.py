@@ -17,7 +17,7 @@ import polars
 import pytest
 import pytest_mock
 
-from lvmopstools.weather import get_weather_data, is_weather_data_safe
+from lvmopstools.weather import WEATHER_SCHEMA, get_weather_data, is_weather_data_safe
 
 
 UTC = datetime.timezone.utc
@@ -67,19 +67,19 @@ async def test_is_weather_data_safe(
     assert is_weather_data_safe(data, "wind_speed_avg", 35, now=now)
     assert not is_weather_data_safe(data, "wind_speed_avg", 5, now=now)
 
-    # Values are such that the max avg wind speed in the last 60 minutes is 12.11
-    # and the maximum in the last 30 minutes is 10.18 mph.
+    # Values are such that the max avg wind speed in the last 60 minutes is 19.4
+    # and the maximum in the last 30 minutes is 16.3 mph.
     assert is_weather_data_safe(
         data,
         "wind_speed_avg",
-        12.5,
+        20,
         reopen_value=10,
         now=now,
     )
     assert not is_weather_data_safe(
         data,
         "wind_speed_avg",
-        12,
+        17,
         reopen_value=10,
         now=now,
     )
