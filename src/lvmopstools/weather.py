@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import datetime
 import time
+import warnings
 
 from typing import Literal
 
@@ -21,6 +22,22 @@ __all__ = ["get_weather_data", "is_weather_data_safe"]
 
 
 WEATHER_URL = "http://env-api.lco.cl/metrics/weather"
+
+WEATHER_SCHEMA = polars.Schema(
+    {
+        "ts": polars.String,
+        "temperature": polars.Float32,
+        "air_pressure": polars.Float32,
+        "wind_dir_avg": polars.Float32,
+        "wind_dir_max": polars.Float32,
+        "wind_dir_min": polars.Float32,
+        "rain_intensity": polars.Float32,
+        "wind_speed_avg": polars.Float32,
+        "wind_speed_max": polars.Float32,
+        "wind_speed_min": polars.Float32,
+        "relative_humidity": polars.Float32,
+    }
+)
 
 
 def format_time(time: str | float) -> str:
@@ -87,10 +104,18 @@ async def get_from_lco_api(
                 raise ValueError(f"Failed to get weather data: {data['Error']}")
             elif "results" not in data or data["results"] is None:
                 raise ValueError("Failed to get weather data: no results found.")
+            elif len(data["results"]) == 0:
+                data_df = polars.DataFrame([], schema=WEATHER_SCHEMA)
+            else:
+                data_df = polars.DataFrame(data["results"], schema=WEATHER_SCHEMA)
 
-            data_df = polars.DataFrame(data["results"]).with_columns(
-                ts=polars.col.ts.str.to_datetime(time_unit="ms", time_zone="UTC")
+            data_df = data_df.with_columns(
+                ts=polars.col.ts.str.to_datetime(
+                    time_unit="ms",
+                    time_zone="UTC",
+                )
             )
+
             data_chunks.append(data_df)
 
             if dt1 >= end_time_dt:
