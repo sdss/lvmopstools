@@ -130,6 +130,9 @@ async def get_from_lco_api(
         polars.col.ts.dt.replace_time_zone(None) <= end_time_dt,
     )
 
+    # Temperature is in Fahrenheit, convert to Celsius.
+    data = data.with_columns(temperature=(polars.col.temperature - 32) * 5 / 9)
+
     return data
 
 

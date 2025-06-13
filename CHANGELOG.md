@@ -6,6 +6,7 @@
 
 * New weather API now returns wind speeds in miles per hour.
 * Fix deprecation in `polars.dt.datetime()`.
+* Convert temperature from Fahrenheit to Celsius after LCO API change.
 
 
 ## 0.5.15 - June 9, 2025
