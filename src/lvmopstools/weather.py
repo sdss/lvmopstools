@@ -177,37 +177,47 @@ async def get_weather_data(
     df = df.filter(~polars.all_horizontal(polars.exclude("ts", "station").is_null()))
 
     # Sort by timestamp and keep only unique timestamps.
-    df = (
-        df.sort("ts")
-        .unique("ts")
-        .drop_nulls(["wind_speed_avg", "wind_speed_max", "wind_dir_avg"])
-    )
+    df = df.sort("ts").unique("ts")
 
     # Calculate rolling means for average wind speed and gusts every 5m, 10m, 30m
     window_sizes = ["5m", "10m", "30m"]
-    df = df.with_columns(
-        **{
-            f"wind_speed_avg_{ws}": polars.col.wind_speed_avg.rolling_mean_by(
-                by="ts",
-                window_size=ws,
+    wind_cols = df.select(["wind_speed_avg", "wind_speed_max", "wind_dir_avg"])
+
+    if wind_cols.null_count().sum_horizontal().item() > 0:
+        # Sometimes we don't have wind data available, especially
+        # if the anemometer has frozen.
+        for ws in window_sizes:
+            df = df.with_columns(
+                **{
+                    f"wind_speed_avg_{ws}": polars.lit(None, polars.Float32),
+                    f"wind_gust_{ws}": polars.lit(None, polars.Float32),
+                    f"wind_dir_avg_{ws}": polars.lit(None, polars.Float32),
+                }
             )
-            for ws in window_sizes
-        },
-        **{
-            f"wind_gust_{ws}": polars.col.wind_speed_max.rolling_max_by(
-                by="ts",
-                window_size=ws,
-            )
-            for ws in window_sizes
-        },
-        **{
-            f"wind_dir_avg_{ws}": polars.col.wind_dir_avg.rolling_mean_by(
-                by="ts",
-                window_size=ws,
-            )
-            for ws in window_sizes
-        },
-    )
+    else:
+        df = df.with_columns(
+            **{
+                f"wind_speed_avg_{ws}": polars.col.wind_speed_avg.rolling_mean_by(
+                    by="ts",
+                    window_size=ws,
+                )
+                for ws in window_sizes
+            },
+            **{
+                f"wind_gust_{ws}": polars.col.wind_speed_max.rolling_max_by(
+                    by="ts",
+                    window_size=ws,
+                )
+                for ws in window_sizes
+            },
+            **{
+                f"wind_dir_avg_{ws}": polars.col.wind_dir_avg.rolling_mean_by(
+                    by="ts",
+                    window_size=ws,
+                )
+                for ws in window_sizes
+            },
+        )
 
     # Add simple dew point.
     df = df.with_columns(

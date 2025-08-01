@@ -1,5 +1,12 @@
 # Changelog
 
+## Next release
+
+### 🔧 Fixed
+
+* Improve handling of empty wind data in the LCO weather API.
+
+
 ## 0.5.16 - June 13, 2025
 
 ### 🔧 Fixed
