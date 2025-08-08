@@ -51,6 +51,26 @@ devices:
       skyw-west: CAM-116
       spec-east: CAM-117
 
+  nps:
+    default_actors:
+      - lvmnps.sp1
+      - lvmnps.sp2
+      - lvmnps.sp3
+      - lvmnps.calib
+      - lvmnps.valve1
+      - lvmnps.valve2
+    valid_actors:
+      - lvmnps.sp1
+      - lvmnps.sp2
+      - lvmnps.sp3
+      - lvmnps.calib
+      - lvmnps.sci
+      - lvmnps.spec
+      - lvmnps.skye
+      - lvmnps.skyw
+      - lvmnps.valve1
+      - lvmnps.valve2
+
   thermistors:
     host: 10.8.38.180
     port: 1025

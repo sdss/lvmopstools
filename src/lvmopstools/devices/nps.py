@@ -8,10 +8,13 @@
 
 from __future__ import annotations
 
+from typing import Sequence
+
 from typing_extensions import TypedDict
 
 from sdsstools import GatheringTaskGroup
 
+from lvmopstools import config
 from lvmopstools.clu import send_clu_command
 from lvmopstools.retrier import Retrier
 
@@ -29,13 +32,26 @@ class NPSStatus(TypedDict):
 
 
 @Retrier(max_attempts=3, delay=1)
-async def read_nps() -> dict[str, NPSStatus]:
+async def read_nps(actors: Sequence[str] | str | None = None) -> dict[str, NPSStatus]:
     """Returns the status of all NPS."""
 
-    actors = ["lvmnps.sp1", "lvmnps.sp2", "lvmnps.sp3", "lvmnps.calib"]
+    default_actors: list[str] = config["devices.nps.default_actors"]
+    valid_actors: list[str] = config["devices.nps.valid_actors"]
+
+    if isinstance(actors, str):
+        actors = [actors]
+
+    if actors is None:
+        actors = default_actors
 
     async with GatheringTaskGroup() as group:
         for actor in actors:
+            if not actor.startswith("lvmnps."):
+                actor = "lvmnps." + actor
+
+            if actor not in valid_actors:
+                raise ValueError(f"Invalid NPS actor: {actor}.")
+
             group.create_task(
                 send_clu_command(
                     f"{actor} status",

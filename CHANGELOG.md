@@ -2,6 +2,10 @@
 
 ## Next release
 
+### ✨ Improved
+
+* `read_nps()` now supports passing a list of NPS to read and is more flexible about the format of the input actors.
+
 ### 🔧 Fixed
 
 * Improve handling of empty wind data in the LCO weather API.
