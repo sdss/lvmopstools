@@ -16,9 +16,9 @@ import socket
 
 import pytest
 from pymodbus.datastore import (
+    ModbusDeviceContext,
     ModbusSequentialDataBlock,
     ModbusServerContext,
-    ModbusSlaveContext,
 )
 from pymodbus.server import ServerAsyncStop, StartAsyncTcpServer
 from pytest_mock import MockerFixture
@@ -117,12 +117,12 @@ async def ion_pump_server():
     ir[3] = 0x3FFF
     ir[4] = 0x0
 
-    store = ModbusSlaveContext(
+    store = ModbusDeviceContext(
         hr=ModbusSequentialDataBlock(0, [0] * 100),
         ir=ModbusSequentialDataBlock(0, ir),
     )
 
-    context = ModbusServerContext(slaves=store, single=True)
+    context = ModbusServerContext(devices=store, single=True)
 
     task = asyncio.create_task(StartAsyncTcpServer(context, address=("0.0.0.0", 5020)))
     await asyncio.sleep(0.1)
