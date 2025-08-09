@@ -286,7 +286,7 @@ class LVMActor(AMQPActor):
         if self.is_connected():
             self.state |= ActorState.RUNNING
 
-        if old_state != self.state:
+        if old_state.value != self.state.value:
             self.write(
                 "d",
                 state={

@@ -1,5 +1,12 @@
 # Changelog
 
+## Next release
+
+### 🔧 Fixed
+
+* Fix check of new status in `LVMActor`.
+
+
 ## 0.5.17 - August 8, 2025
 
 ### ✨ Improved
