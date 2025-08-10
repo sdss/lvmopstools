@@ -65,7 +65,7 @@ def power_cycle_interface(interface: str, verbose: bool = False):
     Parameters
     ----------
     interface
-        The switch interface to power cycle, e.g., ``"2/0/6"
+        The switch interface to power cycle, e.g., ``"2/0/6"``.
     verbose
         If ``True``, prints the commands that are being run.
 

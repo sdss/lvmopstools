@@ -93,6 +93,18 @@ NPS
 ^^^
 
 .. autofunction:: lvmopstools.devices.nps.read_nps
+.. autofunction:: lvmopstools.devices.nps.read_outlet
+
+AGs
+^^^
+
+.. autofunction:: lvmopstools.devices.ags.power_cycle_ag_camera
+
+Switch
+^^^^^^
+
+.. autofunction:: lvmopstools.devices.switch.power_cycle_interface
+.. autofunction:: lvmopstools.devices.switch.get_ag_poe_port_info
 
 Thermistors
 ^^^^^^^^^^^
