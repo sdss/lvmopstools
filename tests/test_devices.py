@@ -8,6 +8,8 @@
 
 from __future__ import annotations
 
+from types import SimpleNamespace
+
 from typing import TYPE_CHECKING
 
 import asyncudp
@@ -17,12 +19,14 @@ import pytest_mock
 from clu.command import Command, CommandStatus
 from drift import Drift
 
+import lvmopstools.devices.ags
 import lvmopstools.devices.ion
 import lvmopstools.devices.nps
 import lvmopstools.devices.switch
 from lvmopstools import config
+from lvmopstools.devices.ags import power_cycle_ag_camera
 from lvmopstools.devices.ion import ALL, read_ion_pumps, toggle_ion_pump
-from lvmopstools.devices.switch import get_poe_port_info, power_cycle_ag_camera
+from lvmopstools.devices.switch import get_ag_poe_port_info
 from lvmopstools.devices.thermistors import read_thermistors
 
 
@@ -202,7 +206,7 @@ async def test_toogle_ion_pump_incomplete_config(monkeypatch: pytest.MonkeyPatch
 
 
 @pytest.mark.parametrize("camera", ["CAM-111", 111, "sci-east"])
-def test_power_cycle_ag_camera(
+async def test_power_cycle_ag_camera_poe(
     mocker: pytest_mock.MockerFixture,
     monkeypatch: pytest.MonkeyPatch,
     camera: str | int,
@@ -216,45 +220,42 @@ def test_power_cycle_ag_camera(
     )
     send_config_set_mock = handler_mock.return_value.send_config_set
 
-    power_cycle_ag_camera(camera, verbose=False)  # type: ignore
+    await power_cycle_ag_camera(camera, verbose=False)  # type: ignore
     send_config_set_mock.assert_called_with(["interface 2/0/6", "poe reset"])
 
 
-def test_power_cycle_ag_camera_invalid_camera(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setenv("LVM_SWITCH_PASSWORD", "password")
-    monkeypatch.setenv("LVM_SWITCH_SECRET", "secret")
-
+async def test_power_cycle_ag_camera_invalid_camera(monkeypatch: pytest.MonkeyPatch):
     with pytest.raises(ValueError):
-        power_cycle_ag_camera("abcd")
+        await power_cycle_ag_camera("abcd")
 
 
-def test_power_cycle_ag_camera_no_password():
+async def test_power_cycle_ag_camera_poe_no_password():
     with pytest.raises(ValueError) as err:
-        power_cycle_ag_camera("CAM-111")
+        await power_cycle_ag_camera("CAM-111")
 
     assert "$LVM_SWITCH_PASSWORD has not been set." in str(err.value)
 
 
-def test_power_cycle_ag_camera_no_secret(monkeypatch: pytest.MonkeyPatch):
+async def test_power_cycle_ag_camera_poe_no_secret(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("LVM_SWITCH_PASSWORD", "password")
 
     with pytest.raises(ValueError) as err:
-        power_cycle_ag_camera("CAM-111")
+        await power_cycle_ag_camera("CAM-111")
 
     assert "$LVM_SWITCH_SECRET has not been set." in str(err.value)
 
 
-def test_power_cycle_ag_camera_no_paramiko(mocker: pytest_mock.MockerFixture):
+async def test_power_cycle_ag_camera_poe_no_paramiko(mocker: pytest_mock.MockerFixture):
     mocker.patch.object(lvmopstools.devices.switch, "netmiko", None)
 
     with pytest.raises(ImportError) as err:
-        power_cycle_ag_camera("CAM-111")
+        await power_cycle_ag_camera("CAM-111")
 
     assert "netmiko is required to power cycle the switch port." in str(err.value)
 
 
 @pytest.mark.parametrize("camera", ["sci-east", None])
-def test_get_poe_port_info(
+def test_get_ag_poe_port_info(
     mocker: pytest_mock.MockerFixture,
     monkeypatch: pytest.MonkeyPatch,
     camera: str | None,
@@ -269,7 +270,7 @@ def test_get_poe_port_info(
     send_command_mock = handler_mock.return_value.send_command
     send_command_mock.return_value = "some data"
 
-    result = get_poe_port_info(camera)
+    result = get_ag_poe_port_info(camera)
     assert isinstance(result, dict)
 
     if camera is None:
@@ -277,3 +278,32 @@ def test_get_poe_port_info(
         assert len(result) > 1
     else:
         send_command_mock.assert_called_with("show poe port info 2/0/6")
+
+
+def test_get_ag_poe_port_info_not_found():
+    with pytest.raises(ValueError):
+        get_ag_poe_port_info("CAM-999")
+
+
+@pytest.mark.parametrize("fail", [False, True])
+async def test_power_cycle_ag_camera_nps(
+    mocker: pytest_mock.MockerFixture,
+    fail: bool,
+):
+    class ReturnCommand:
+        def __init__(self, failed: bool):
+            self.failed = failed
+            self.status = SimpleNamespace(did_fail=self.failed)
+
+    send_command_mock = mocker.patch.object(
+        lvmopstools.devices.ags,
+        "send_clu_command",
+    )
+    send_command_mock.return_value = ReturnCommand(fail)
+
+    if fail:
+        with pytest.raises(RuntimeError) as err:
+            await power_cycle_ag_camera("skyw-east", verbose=False)
+        assert "Failed to power cycle camera 'skyw-east' via NPS." in str(err.value)
+    else:
+        await power_cycle_ag_camera("skyw-east", verbose=False)

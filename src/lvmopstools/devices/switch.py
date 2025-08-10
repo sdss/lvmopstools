@@ -9,7 +9,7 @@
 from __future__ import annotations
 
 import os
-import re
+import warnings
 
 from lvmopstools import config
 
@@ -20,7 +20,7 @@ except ImportError:
     netmiko = None
 
 
-__all__ = ["power_cycle_ag_camera", "get_poe_port_info"]
+__all__ = ["power_cycle_interface", "get_ag_poe_port_info"]
 
 
 def _get_connection(enable: bool = True):
@@ -55,8 +55,8 @@ def _get_connection(enable: bool = True):
     return connection
 
 
-def power_cycle_ag_camera(camera: str, verbose: bool = False):
-    """Power cycles the switch port for the given auto-guide camera.
+def power_cycle_interface(interface: str, verbose: bool = False):
+    """Power cycles the PoE for a switch interface.
 
     The environment variales ``LVM_SWITCH_HOST``, ``LVM_SWITCH_USERNAME``,
     ``LVM_SWITCH_PASSWORD``, and ``LVM_SWITCH_SECRET`` must be set when
@@ -64,31 +64,16 @@ def power_cycle_ag_camera(camera: str, verbose: bool = False):
 
     Parameters
     ----------
-    camera
-        The name of the camera to power cycle. Valid values are ``'CAM-111'``,
-        ``'111'``, ``'sci-east'`` (where 111 is the last octet of the IP address).
+    interface
+        The switch interface to power cycle, e.g., ``"2/0/6"
     verbose
         If ``True``, prints the commands that are being run.
 
     """
 
-    if not isinstance(camera, str):
-        camera = str(camera)
-
-    if re.match(r"^\d+$", camera):
-        camera = f"CAM-{camera}"
-    elif re.match(r"^CAM-\d+$", camera, re.IGNORECASE):
-        camera = camera.upper()
-    elif re.match(r"^(sci|spec|skye|skyw)-(east|west)$", camera, re.IGNORECASE):
-        camera = config["devices.switch.camera_to_ip"][camera.lower()]
-    else:
-        raise ValueError(f"invalid camera name {camera}")
-
     connection = _get_connection()
 
-    cam_interface = config["devices.switch.camera_to_interface"][camera]
-
-    output = connection.send_config_set([f"interface {cam_interface}", "poe reset"])
+    output = connection.send_config_set([f"interface {interface}", "poe reset"])
     if verbose:
         print(output)
         print("Closing connection ...")
@@ -96,7 +81,7 @@ def power_cycle_ag_camera(camera: str, verbose: bool = False):
     connection.disconnect()
 
 
-def get_poe_port_info(camera: str | None = None) -> dict[str, str]:
+def get_ag_poe_port_info(camera: str | None = None) -> dict[str, str]:
     """Returns the PoE port information for a given camera.
 
     Parameters
@@ -114,18 +99,23 @@ def get_poe_port_info(camera: str | None = None) -> dict[str, str]:
 
     connection = _get_connection()
 
-    cam_interfaces = config["devices.switch.camera_to_interface"]
+    agcams_config = config["devices.agcams.power"]
 
     results: dict[str, str] = {}
-    cams = [camera] if camera else config["devices.switch.camera_to_ip"].keys()
+    for cam_config_name, cam_config in agcams_config.items():
+        if camera is None or camera.lower() == cam_config_name.lower():
+            interface = cam_config["interface"]
+            if interface is None:
+                warnings.warn(f"Interface for camera {cam_config_name} is not set.")
+                continue
 
-    for cam in cams:
-        interface = cam_interfaces[config["devices.switch.camera_to_ip"][cam]]
+            data = connection.send_command(f"show poe port info {interface}")
+            assert isinstance(data, str)
 
-        data = connection.send_command(f"show poe port info {interface}")
-        assert isinstance(data, str)
+            results[cam_config_name] = data
 
-        results[cam] = data
+    if camera is not None and len(results) == 0:
+        raise ValueError(f"No PoE port information found for camera {camera}.")
 
     connection.disconnect()
 

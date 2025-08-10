@@ -33,23 +33,41 @@ devices:
   switch:
     host: 10.8.1.177
     username: lvmadmin
-    camera_to_interface:
-      CAM-111: 2/0/6
-      CAM-112: 1/0/47
-      CAM-113: 2/0/12
-      CAM-114: 2/0/24
-      CAM-115: 1/0/43
-      CAM-116: 1/0/41
-      CAM-117: 2/0/10
-      TEST: 1/0/1
-    camera_to_ip:
-      sci-east: CAM-111
-      sci-west: CAM-112
-      skye-east: CAM-113
-      skye-west: CAM-114
-      skyw-east: CAM-115
-      skyw-west: CAM-116
-      spec-east: CAM-117
+
+  agcams:
+    power:
+      sci-east:
+        mode: poe
+        interface: 2/0/6
+        aliases: ['CAM-111', '111']
+      sci-west:
+        mode: poe
+        interface: 1/0/47
+        aliases: ['CAM-112', '112']
+      skye-east:
+        mode: poe
+        interface: 2/0/12
+        aliases: ['CAM-113', '113']
+      skye-west:
+        mode: poe
+        interface: 2/0/24
+        aliases: ['CAM-114', '114']
+      skyw-east:
+        mode: nps
+        actor: lvmnps.skyw
+        outlet: FLIR
+        interface: 1/0/43
+        aliases: ['CAM-115', '115']
+      skyw-west:
+        mode: nps
+        actor: lvmnps.skyw
+        outlet: FLIR
+        interface: 1/0/41
+        aliases: ['CAM-116', '116']
+      spec-east:
+        mode: poe
+        interface: 2/0/10
+        aliases: ['CAM-117', '117']
 
   nps:
     default_actors:

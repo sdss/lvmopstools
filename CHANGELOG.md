@@ -1,5 +1,12 @@
 # Changelog
 
+## Next release
+
+### ✨ Improved
+
+* Support power cycling AG cameras that are connected to a NPS outlet. The configuration for AG cameras has changed significantly and the new section `devices.agcams` now includes the type of connection (`nps` or `poe`) with the actor/outlet information in the case of `nps` and the port interface in the case of `poe`.
+
+
 ## 0.5.18 - August 9, 2025
 
 ### 🔧 Fixed
