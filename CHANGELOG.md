@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.5.18 - August 10, 2025
+## 0.5.19 - August 10, 2025
 
 ### ✨ Improved
 
