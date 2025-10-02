@@ -86,9 +86,11 @@
     </div>
     <hr style="width: 100%" />
 
-    <div style="padding: 10px 0px;">
-      A critical error has been raised in the LVM system. Please see the details below.
-    </div>
+    {% if show_critical_error_preface %}
+      <div style="padding: 10px 0px;">
+        A critical error has been raised in the LVM system. Please see the details below.
+      </div>
+    {% endif %}
 
     <div style="padding: 10px 0px;">
       <pre><code>{{- message }}</code></pre>

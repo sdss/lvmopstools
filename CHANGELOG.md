@@ -1,5 +1,12 @@
 # Changelog
 
+## Next release
+
+### ✨ Improved
+
+* Allow to remove the preface in critical error emails that indicates that the email is a critical error notification.
+
+
 ## 0.5.19 - August 10, 2025
 
 ### ✨ Improved

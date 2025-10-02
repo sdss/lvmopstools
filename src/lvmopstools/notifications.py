@@ -217,6 +217,7 @@ def send_critical_error_email(
     tls: bool | None = None,
     username: str | None = None,
     password: str | None = None,
+    show_critical_error_preface: bool = True,
 ):
     """Sends a critical error email.
 
@@ -241,6 +242,9 @@ def send_critical_error_email(
         The SMTP server username.
     password
         The SMTP server password.
+    show_critical_error_preface
+        Whether to show a preface in the email indicating that this is a critical
+        error notification.
 
     """
 
@@ -255,7 +259,10 @@ def send_critical_error_email(
     )
     html_template = env.get_template(template.name)
 
-    html_message = html_template.render(message=message.strip())
+    html_message = html_template.render(
+        message=message.strip(),
+        show_critical_error_preface=show_critical_error_preface,
+    )
 
     recipients = recipients or config["notifications.critical.email_recipients"]
     from_address = from_address or config["notifications.critical.email_from"]
