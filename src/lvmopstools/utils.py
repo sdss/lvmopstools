@@ -13,6 +13,7 @@ import os
 import subprocess
 import time
 import warnings
+from functools import wraps
 
 from typing import Any, Coroutine, TypeVar
 
@@ -33,6 +34,7 @@ __all__ = [
     "get_exception_data",
     "stop_event_loop",
     "with_timeout",
+    "timeout",
     "is_notebook",
     "Trigger",
     "is_host_up",
@@ -154,6 +156,47 @@ async def with_timeout(
     except asyncio.TimeoutError:
         if raise_on_timeout:
             raise asyncio.TimeoutError(f"Timed out after {timeout} seconds.")
+
+
+def timeout(timeout: float, raise_on_timeout: bool = True):
+    """Decorator that wraps an async function with :obj:`asyncio.wait_for`.
+
+    Parameters
+    ----------
+    timeout
+        The timeout in seconds.
+    raise_on_timeout
+        If :obj:`True`, raises a :class:`asyncio.TimeoutError` if the coroutine times
+        out, otherwise returns :obj:`None`.
+
+    Example
+    -------
+    @timeout(5)
+    async def work(): ...
+
+    @timeout(5, raise_on_timeout=False)
+    async def maybe(): ...
+
+    """
+
+    def decorator(func):
+        if not asyncio.iscoroutinefunction(func):
+            raise TypeError("timeout decorator can only be applied to async functions.")
+
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            try:
+                return await asyncio.wait_for(func(*args, **kwargs), timeout)
+            except asyncio.TimeoutError:
+                if raise_on_timeout:
+                    raise asyncio.TimeoutError(
+                        f"{func.__name__} timed out after {timeout} seconds."
+                    )
+                return None
+
+        return wrapper
+
+    return decorator
 
 
 class Trigger:

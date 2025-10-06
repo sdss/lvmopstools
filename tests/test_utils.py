@@ -18,6 +18,7 @@ from lvmopstools.utils import (
     Trigger,
     is_host_up,
     is_notebook,
+    timeout,
     with_timeout,
 )
 
@@ -35,6 +36,56 @@ async def test_with_timeout():
 async def test_with_timeout_no_raise():
     result = await with_timeout(_timeout(0.5), timeout=0.1, raise_on_timeout=False)
     assert result is None
+
+
+async def test_timeout_decorator_success():
+    """Test that timeout decorator allows function to complete when within timeout."""
+
+    @timeout(0.2)
+    async def quick_task():
+        await asyncio.sleep(0.05)
+        return "completed"
+
+    result = await quick_task()
+    assert result == "completed"
+
+
+async def test_timeout_decorator_timeout_raises():
+    """Test that timeout decorator raises TimeoutError when function exceeds timeout."""
+
+    @timeout(0.1)
+    async def slow_task():
+        await asyncio.sleep(0.2)
+        return "should_not_reach"
+
+    with pytest.raises(asyncio.TimeoutError) as exc_info:
+        await slow_task()
+
+    assert "slow_task timed out after 0.1 seconds" in str(exc_info.value)
+
+
+async def test_timeout_decorator_timeout_no_raise():
+    """Test that timeout decorator returns None when raise_on_timeout=False."""
+
+    @timeout(0.1, raise_on_timeout=False)
+    async def slow_task():
+        await asyncio.sleep(0.2)
+        return "should_not_reach"
+
+    result = await slow_task()
+    assert result is None
+
+
+def test_timeout_decorator_non_async_function_raises_type_error():
+    """Test that timeout decorator raises error when applied to non-async function."""
+
+    with pytest.raises(TypeError) as exc_info:
+
+        @timeout(1.0)
+        def sync_function():
+            return "sync"
+
+    assert "can only be applied to async functions" in str(exc_info.value)
 
 
 class GetPythonMocker:

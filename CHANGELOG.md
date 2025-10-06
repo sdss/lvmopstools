@@ -2,6 +2,10 @@
 
 ## Next release
 
+### 🚀 New
+
+* Added `timeout` decorator to set a timeout on async functions.
+
 ### ✨ Improved
 
 * Allow to remove the preface in critical error emails that indicates that the email is a critical error notification.
