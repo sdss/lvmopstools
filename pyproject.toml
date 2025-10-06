@@ -1,6 +1,6 @@
 [project]
 name = "lvmopstools"
-version = "0.5.20"
+version = "0.5.21a1"
 description = "LVM tools and utilities for operations"
 authors = [
     { name = "José Sánchez-Gallego", email = "gallegoj@uw.edu" }
