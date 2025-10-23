@@ -330,15 +330,15 @@ class Subscriber(BasePubSub):
             return await self.queue.get()
 
     @overload
-    async def iterator(
+    def iterator(
         self,
         decode: Literal[True] = True,
     ) -> AsyncGenerator[Message, None]: ...
 
     @overload
-    async def iterator(
+    def iterator(
         self,
-        decode: Literal[False],
+        decode: Literal[False] = False,
     ) -> AsyncGenerator[AbstractIncomingMessage, None]: ...
 
     async def iterator(

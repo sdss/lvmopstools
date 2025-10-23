@@ -1,5 +1,12 @@
 # Changelog
 
+## Next version
+
+### 🔧 Fixed
+
+* Fix typing in `pubsub.py` iterator overloads.
+
+
 ## 0.5.20 - October 6, 2025
 
 ### 🚀 New
