@@ -12,7 +12,7 @@ import os
 import pathlib
 import warnings
 
-from sdsstools import read_yaml_file
+from sdsstools import Configuration, read_yaml_file
 from sdsstools.metadata import get_package_version
 
 
@@ -32,7 +32,7 @@ if not CONFIG_FILE.exists():
     CONFIG_FILE = DEFAULT_CONFIG_FILE
 
 
-config = read_yaml_file(CONFIG_FILE)
+config = read_yaml_file(CONFIG_FILE, return_class=Configuration)
 
 
 def set_config(config_file: str | pathlib.Path | None = None) -> None:
