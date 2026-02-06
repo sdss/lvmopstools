@@ -88,7 +88,11 @@ dev = [
     "ruff>=0.6.1",
     "pytest-rabbitmq>=3.1.1",
     "pytest-env>=1.1.5",
+    "ty>=0.0.15",
 ]
+
+[tool.ty.environment]
+extra-paths = ["./typings"]
 
 [tool.ruff]
 line-length = 88
