@@ -1,5 +1,12 @@
 # Changelog
 
+## Next release
+
+### ✨ Improved
+
+* Add times for extra twilight Sun elevation angles in `ephemeris`.
+
+
 ## 0.5.21 - October 22, 2025
 
 ### 🔧 Fixed

@@ -13,7 +13,7 @@ import pathlib
 import numpy
 import polars
 from cachetools import TTLCache, cached
-from typing_extensions import TypedDict
+from typing_extensions import Sequence, TypedDict
 
 from sdsstools import get_sjd
 
@@ -23,9 +23,9 @@ try:
     from astropy import units as uu
     from astropy.time import Time
 except ImportError:
-    uu = None
-    Time = None
-    astroplan = None
+    uu: None = None
+    Time: None = None
+    astroplan: None = None
 
 EPHEMERIS_FILE = pathlib.Path(__file__).parent / "data/ephemeris_59945_62866.parquet"
 
@@ -37,7 +37,11 @@ def get_ephemeris_data(filename: pathlib.Path | str) -> polars.DataFrame:
     return polars.read_parquet(filename)
 
 
-def sjd_ephemeris(sjd: int, twilight_horizon: float = -15) -> polars.DataFrame:
+def sjd_ephemeris(
+    sjd: int,
+    twilight_horizon: float = -15,
+    extra_elevations: Sequence[int] = [-3, -6, -9, -12, -15, -18],
+) -> polars.DataFrame:
     """Returns the ephemeris for a given SJD."""
 
     if not astroplan or not uu or not Time:
@@ -56,6 +60,8 @@ def sjd_ephemeris(sjd: int, twilight_horizon: float = -15) -> polars.DataFrame:
     phi = (numpy.arccos((dd / R_earth).value) * uu.radian).to(uu.deg)
     hzel = phi - 90 * uu.deg
 
+    twilight_horizon = twilight_horizon - hzel.value  # Adjust twilight horizon.
+
     # Calculate time at ~15UT, which corresponds to about noon at LCO, so always
     # before the beginning of the night.
     time = Time(sjd - 0.35, format="mjd", scale="utc")
@@ -71,6 +77,22 @@ def sjd_ephemeris(sjd: int, twilight_horizon: float = -15) -> polars.DataFrame:
         horizon=twilight_horizon * uu.deg,
     )
 
+    # Extra elevations for evening twilight.
+    sunset_extra_times = []
+    sunset_extra_times_schema = {}
+    for extra in extra_elevations:
+        if extra > 0:
+            raise ValueError("Extra elevations must be negative.")
+
+        extra_time = observer.sun_set_time(
+            time,
+            which="next",
+            horizon=(hzel.value + extra) * uu.deg,
+        ).jd
+
+        sunset_extra_times.append(extra_time)
+        sunset_extra_times_schema[f"twilight_evening_m{abs(extra)}"] = polars.Float64
+
     sunrise = observer.sun_rise_time(
         time,
         which="next",
@@ -82,6 +104,19 @@ def sjd_ephemeris(sjd: int, twilight_horizon: float = -15) -> polars.DataFrame:
         horizon=twilight_horizon * uu.deg,
     )
 
+    # Extra elevations for morning twilight.
+    sunrise_extra_times = []
+    sunrise_extra_times_schema = {}
+    for extra in extra_elevations:
+        extra_time = observer.sun_rise_time(
+            time,
+            which="next",
+            horizon=(hzel.value + extra) * uu.deg,
+        ).jd
+
+        sunrise_extra_times.append(extra_time)
+        sunrise_extra_times_schema[f"twilight_morning_m{abs(extra)}"] = polars.Float64
+
     moon_illumination = observer.moon_illumination(time)
 
     df = polars.DataFrame(
@@ -90,8 +125,10 @@ def sjd_ephemeris(sjd: int, twilight_horizon: float = -15) -> polars.DataFrame:
                 sjd,
                 time.isot.split("T")[0],
                 sunset.jd,
+                *sunset_extra_times,
                 sunset_twilight.jd,
                 sunrise_twilight.jd,
+                *sunrise_extra_times,
                 sunrise.jd,
                 moon_illumination,
             )
@@ -100,8 +137,10 @@ def sjd_ephemeris(sjd: int, twilight_horizon: float = -15) -> polars.DataFrame:
             "SJD": polars.Int32,
             "date": polars.String,
             "sunset": polars.Float64,
+            **sunset_extra_times_schema,
             "twilight_end": polars.Float64,
             "twilight_start": polars.Float64,
+            **sunrise_extra_times_schema,
             "sunrise": polars.Float64,
             "moon_illumination": polars.Float32,
         },
